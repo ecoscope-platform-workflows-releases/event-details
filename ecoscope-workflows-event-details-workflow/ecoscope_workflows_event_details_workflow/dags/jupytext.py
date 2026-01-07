@@ -2442,7 +2442,7 @@ classify_fd = (
         input_column_name="density",
         output_column_name="density_bins",
         classification_options={"scheme": "equal_interval", "k": 9},
-        label_options={"label_ranges": True, "label_decimals": 0, "label_suffix": ""},
+        label_options={"label_ranges": True, "label_decimals": 0, "label_suffix": None},
         **classify_fd_params,
     )
     .mapvalues(argnames=["df"], argvalues=sort_grouped_density_values)
