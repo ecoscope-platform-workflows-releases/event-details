@@ -1642,7 +1642,7 @@ def main(params: Params):
             label_options={
                 "label_ranges": True,
                 "label_decimals": 0,
-                "label_suffix": "",
+                "label_suffix": None,
             },
             **(params_dict.get("classify_fd") or {}),
         )
