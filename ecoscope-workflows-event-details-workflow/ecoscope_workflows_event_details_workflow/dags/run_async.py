@@ -1936,7 +1936,7 @@ def main(params: Params):
                 "label_options": {
                     "label_ranges": True,
                     "label_decimals": 0,
-                    "label_suffix": None,
+                    "label_suffix": "",
                 },
             }
             | (params_dict.get("classify_fd") or {}),
