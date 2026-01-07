@@ -685,7 +685,7 @@ workflow:
           label_options:
             label_ranges: true
             label_decimals: 0
-            label_suffix: null
+            label_suffix: ""
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.sort_grouped_density_values.return }}
