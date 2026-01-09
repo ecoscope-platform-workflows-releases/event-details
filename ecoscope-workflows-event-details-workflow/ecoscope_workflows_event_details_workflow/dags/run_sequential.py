@@ -62,6 +62,7 @@ from ecoscope_workflows_core.tasks.transformation import (
 from ecoscope_workflows_core.tasks.transformation import (
     extract_value_from_json_column as extract_value_from_json_column,
 )
+from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
 from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
 from ecoscope_workflows_core.tasks.transformation import map_values as map_values
 from ecoscope_workflows_core.tasks.transformation import (
@@ -589,9 +590,9 @@ def main(params: Params):
         .call()
     )
 
-    default_category_column = (
+    add_default_category_column = (
         assign_value.validate()
-        .set_task_instance_id("default_category_column")
+        .set_task_instance_id("add_default_category_column")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -605,7 +606,8 @@ def main(params: Params):
             df=events_add_temporal_index,
             column_name="default_category",
             value=analysis_field_unit,
-            **(params_dict.get("default_category_column") or {}),
+            noop_if_column_exists=False,
+            **(params_dict.get("add_default_category_column") or {}),
         )
         .call()
     )
@@ -661,7 +663,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=default_category_column,
+            df=add_default_category_column,
             prefix="event_details__",
             **(params_dict.get("title_case_columns") or {}),
         )
@@ -689,6 +691,28 @@ def main(params: Params):
         .call()
     )
 
+    ensure_category_column = (
+        assign_value.validate()
+        .set_task_instance_id("ensure_category_column")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=title_case_columns,
+            column_name=default_category_field,
+            value="None",
+            noop_if_column_exists=True,
+            **(params_dict.get("ensure_category_column") or {}),
+        )
+        .call()
+    )
+
     map_display_names = (
         map_values.validate()
         .set_task_instance_id("map_display_names")
@@ -702,12 +726,33 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=title_case_columns,
+            df=ensure_category_column,
             column_name=default_category_field,
             value_map=get_category_display_names,
             missing_values="preserve",
             replacement=None,
             **(params_dict.get("map_display_names") or {}),
+        )
+        .call()
+    )
+
+    convert_na_values = (
+        fill_na.validate()
+        .set_task_instance_id("convert_na_values")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=map_display_names,
+            value="None",
+            columns=[default_category_field],
+            **(params_dict.get("convert_na_values") or {}),
         )
         .call()
     )
@@ -725,7 +770,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=map_display_names,
+            df=convert_na_values,
             drop_columns=["reported_by", "location", "Updates"],
             retain_columns=[],
             rename_columns={
@@ -1623,11 +1668,7 @@ def main(params: Params):
             input_column_name="density",
             output_column_name="density_bins",
             classification_options={"scheme": "equal_interval", "k": 9},
-            label_options={
-                "label_ranges": True,
-                "label_decimals": 0,
-                "label_suffix": "",
-            },
+            label_options={"label_ranges": True, "label_decimals": 0},
             **(params_dict.get("classify_fd") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=sort_grouped_density_values)
