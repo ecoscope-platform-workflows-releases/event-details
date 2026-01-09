@@ -63,6 +63,7 @@ from ecoscope_workflows_core.tasks.transformation import (
 from ecoscope_workflows_core.tasks.transformation import (
     extract_value_from_json_column as extract_value_from_json_column,
 )
+from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
 from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
 from ecoscope_workflows_core.tasks.transformation import map_values as map_values
 from ecoscope_workflows_core.tasks.transformation import (
@@ -173,21 +174,26 @@ def main(params: Params):
         "category_field": ["category_field_from_config"],
         "category_field_label": ["set_event_details_combined"],
         "event_type": ["set_event_details_combined"],
-        "default_category_column": ["events_add_temporal_index", "analysis_field_unit"],
+        "add_default_category_column": [
+            "events_add_temporal_index",
+            "analysis_field_unit",
+        ],
         "default_category_field": ["category_field"],
         "default_category_field_label": ["category_field_label", "analysis_field_unit"],
-        "title_case_columns": ["default_category_column"],
+        "title_case_columns": ["add_default_category_column"],
         "get_category_display_names": [
             "er_client_name",
             "event_type",
             "category_field_from_config",
         ],
+        "ensure_category_column": ["title_case_columns", "default_category_field"],
         "map_display_names": [
-            "title_case_columns",
+            "ensure_category_column",
             "default_category_field",
             "get_category_display_names",
         ],
-        "rename_columns": ["map_display_names"],
+        "convert_na_values": ["map_display_names", "default_category_field"],
+        "rename_columns": ["convert_na_values"],
         "column_display_order": ["rename_columns"],
         "ensure_numeric": ["rename_columns", "analysis_field"],
         "events_colormap": ["ensure_numeric", "default_category_field"],
@@ -759,9 +765,9 @@ def main(params: Params):
             | (params_dict.get("event_type") or {}),
             method="call",
         ),
-        "default_category_column": Node(
+        "add_default_category_column": Node(
             async_task=assign_value.validate()
-            .set_task_instance_id("default_category_column")
+            .set_task_instance_id("add_default_category_column")
             .handle_errors()
             .with_tracing()
             .skipif(
@@ -776,8 +782,9 @@ def main(params: Params):
                 "df": DependsOn("events_add_temporal_index"),
                 "column_name": "default_category",
                 "value": DependsOn("analysis_field_unit"),
+                "noop_if_column_exists": False,
             }
-            | (params_dict.get("default_category_column") or {}),
+            | (params_dict.get("add_default_category_column") or {}),
             method="call",
         ),
         "default_category_field": Node(
@@ -832,7 +839,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("default_category_column"),
+                "df": DependsOn("add_default_category_column"),
                 "prefix": "event_details__",
             }
             | (params_dict.get("title_case_columns") or {}),
@@ -859,6 +866,28 @@ def main(params: Params):
             | (params_dict.get("get_category_display_names") or {}),
             method="call",
         ),
+        "ensure_category_column": Node(
+            async_task=assign_value.validate()
+            .set_task_instance_id("ensure_category_column")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "df": DependsOn("title_case_columns"),
+                "column_name": DependsOn("default_category_field"),
+                "value": "None",
+                "noop_if_column_exists": True,
+            }
+            | (params_dict.get("ensure_category_column") or {}),
+            method="call",
+        ),
         "map_display_names": Node(
             async_task=map_values.validate()
             .set_task_instance_id("map_display_names")
@@ -873,13 +902,36 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("title_case_columns"),
+                "df": DependsOn("ensure_category_column"),
                 "column_name": DependsOn("default_category_field"),
                 "value_map": DependsOn("get_category_display_names"),
                 "missing_values": "preserve",
                 "replacement": None,
             }
             | (params_dict.get("map_display_names") or {}),
+            method="call",
+        ),
+        "convert_na_values": Node(
+            async_task=fill_na.validate()
+            .set_task_instance_id("convert_na_values")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "df": DependsOn("map_display_names"),
+                "value": "None",
+                "columns": [
+                    DependsOn("default_category_field"),
+                ],
+            }
+            | (params_dict.get("convert_na_values") or {}),
             method="call",
         ),
         "rename_columns": Node(
@@ -896,7 +948,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("map_display_names"),
+                "df": DependsOn("convert_na_values"),
                 "drop_columns": [
                     "reported_by",
                     "location",
@@ -1936,7 +1988,6 @@ def main(params: Params):
                 "label_options": {
                     "label_ranges": True,
                     "label_decimals": 0,
-                    "label_suffix": "",
                 },
             }
             | (params_dict.get("classify_fd") or {}),

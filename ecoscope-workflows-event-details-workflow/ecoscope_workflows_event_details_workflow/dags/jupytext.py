@@ -72,6 +72,7 @@ from ecoscope_workflows_core.tasks.transformation import (
 from ecoscope_workflows_core.tasks.transformation import (
     extract_value_from_json_column as extract_value_from_json_column,
 )
+from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
 from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
 from ecoscope_workflows_core.tasks.transformation import map_values as map_values
 from ecoscope_workflows_core.tasks.transformation import (
@@ -870,14 +871,14 @@ event_type = (
 # %%
 # parameters
 
-default_category_column_params = dict()
+add_default_category_column_params = dict()
 
 # %%
 # call the task
 
 
-default_category_column = (
-    assign_value.set_task_instance_id("default_category_column")
+add_default_category_column = (
+    assign_value.set_task_instance_id("add_default_category_column")
     .handle_errors()
     .with_tracing()
     .skipif(
@@ -891,7 +892,8 @@ default_category_column = (
         df=events_add_temporal_index,
         column_name="default_category",
         value=analysis_field_unit,
-        **default_category_column_params,
+        noop_if_column_exists=False,
+        **add_default_category_column_params,
     )
     .call()
 )
@@ -985,7 +987,7 @@ title_case_columns = (
         unpack_depth=1,
     )
     .partial(
-        df=default_category_column,
+        df=add_default_category_column,
         prefix="event_details__",
         **title_case_columns_params,
     )
@@ -1032,6 +1034,40 @@ get_category_display_names = (
 # %%
 # parameters
 
+ensure_category_column_params = dict()
+
+# %%
+# call the task
+
+
+ensure_category_column = (
+    assign_value.set_task_instance_id("ensure_category_column")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(
+        df=title_case_columns,
+        column_name=default_category_field,
+        value="None",
+        noop_if_column_exists=True,
+        **ensure_category_column_params,
+    )
+    .call()
+)
+
+
+# %% [markdown]
+# ##
+
+# %%
+# parameters
+
 map_display_names_params = dict()
 
 # %%
@@ -1050,12 +1086,45 @@ map_display_names = (
         unpack_depth=1,
     )
     .partial(
-        df=title_case_columns,
+        df=ensure_category_column,
         column_name=default_category_field,
         value_map=get_category_display_names,
         missing_values="preserve",
         replacement=None,
         **map_display_names_params,
+    )
+    .call()
+)
+
+
+# %% [markdown]
+# ##
+
+# %%
+# parameters
+
+convert_na_values_params = dict()
+
+# %%
+# call the task
+
+
+convert_na_values = (
+    fill_na.set_task_instance_id("convert_na_values")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(
+        df=map_display_names,
+        value="None",
+        columns=[default_category_field],
+        **convert_na_values_params,
     )
     .call()
 )
@@ -1085,7 +1154,7 @@ rename_columns = (
         unpack_depth=1,
     )
     .partial(
-        df=map_display_names,
+        df=convert_na_values,
         drop_columns=["reported_by", "location", "Updates"],
         retain_columns=[],
         rename_columns={
@@ -2442,7 +2511,7 @@ classify_fd = (
         input_column_name="density",
         output_column_name="density_bins",
         classification_options={"scheme": "equal_interval", "k": 9},
-        label_options={"label_ranges": True, "label_decimals": 0, "label_suffix": None},
+        label_options={"label_ranges": True, "label_decimals": 0},
         **classify_fd_params,
     )
     .mapvalues(argnames=["df"], argvalues=sort_grouped_density_values)

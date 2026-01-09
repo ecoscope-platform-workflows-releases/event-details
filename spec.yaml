@@ -1,10 +1,10 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.20.0
+    version: 0.20.1
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.20.0
+    version: 0.20.1
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
@@ -183,12 +183,13 @@ workflow:
     task: get_event_type_from_event_details
     partial:
       combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: default_category_column
+  - id: add_default_category_column
     task: assign_value
     partial:
       df: ${{ workflow.events_add_temporal_index.return }}
       column_name: default_category
       value: ${{ workflow.analysis_field_unit.return }}
+      noop_if_column_exists: false
   - id: default_category_field
     task: default_if_string_is_none_or_skip
     skipif:
@@ -208,7 +209,7 @@ workflow:
   - id: title_case_columns
     task: title_case_columns_by_prefix
     partial:
-      df: ${{ workflow.default_category_column.return }}
+      df: ${{ workflow.add_default_category_column.return }}
       prefix: event_details__
   - id: get_category_display_names
     task: get_choices_from_v2_event_type
@@ -216,19 +217,33 @@ workflow:
       client: ${{ workflow.er_client_name.return }}
       event_type: ${{ workflow.event_type.return }}
       choice_field: ${{ workflow.category_field_from_config.return }}
+  - id: ensure_category_column
+    task: assign_value
+    partial:
+      df: ${{ workflow.title_case_columns.return }}
+      column_name: ${{ workflow.default_category_field.return }}
+      value: None
+      noop_if_column_exists: true
   - id: map_display_names
     task: map_values
     partial:
-      df: ${{ workflow.title_case_columns.return }}
+      df: ${{ workflow.ensure_category_column.return }}
       column_name: ${{ workflow.default_category_field.return }}
       value_map: ${{ workflow.get_category_display_names.return }}
       missing_values: preserve
       replacement: null
+  - id: convert_na_values
+    task: fill_na
+    partial:
+      df: ${{ workflow.map_display_names.return }}
+      value: None
+      columns:
+        - ${{ workflow.default_category_field.return }}
   - name: Rename columns for display
     id: rename_columns
     task: map_columns
     partial:
-      df: ${{ workflow.map_display_names.return }}
+      df: ${{ workflow.convert_na_values.return }}
       drop_columns:
         - reported_by
         - location
@@ -685,7 +700,6 @@ workflow:
           label_options:
             label_ranges: true
             label_decimals: 0
-            label_suffix: ""
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.sort_grouped_density_values.return }}
