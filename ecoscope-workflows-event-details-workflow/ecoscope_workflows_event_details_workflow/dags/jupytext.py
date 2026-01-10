@@ -588,6 +588,7 @@ normalize_event_details = (
         df=filter_events,
         column="event_details",
         skip_if_not_exists=False,
+        sort_columns=False,
         **normalize_event_details_params,
     )
     .call()
