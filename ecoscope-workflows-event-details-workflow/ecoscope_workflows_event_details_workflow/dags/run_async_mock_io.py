@@ -604,6 +604,7 @@ def main(params: Params):
                 "df": DependsOn("filter_events"),
                 "column": "event_details",
                 "skip_if_not_exists": False,
+                "sort_columns": False,
             }
             | (params_dict.get("normalize_event_details") or {}),
             method="call",
