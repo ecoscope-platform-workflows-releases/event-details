@@ -74,6 +74,8 @@ month-grouper:
       analysis_field: "how_many_elephants_are_in_the_group"
       analysis_field_label: "Herd Size"
       analysis_field_unit: "Elephants"
+      category_field: ""
+      category_field_label: ""
       include_null_geometry: false
     events_bar_chart:
       time_interval: "month"
