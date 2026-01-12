@@ -38,12 +38,12 @@ class SetEventDetailsCombined(BaseModel):
         title="Units - What does the number represent?",
     )
     category_field: str | None = Field(
-        None,
+        "",
         description="Differentiate events with the choices in a choice field. Each choice will be represented by a different color in the outputs.",
-        title="Category Field - Choice field to categorize by (optional)",
+        title="Category Field - Choice field to categorize by",
     )
     category_field_label: str | None = Field(
-        None,
+        "",
         description="The provided text will be used to label the category data in the outputs.",
         title="Label for category data",
     )

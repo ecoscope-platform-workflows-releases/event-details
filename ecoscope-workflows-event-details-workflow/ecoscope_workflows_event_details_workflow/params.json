@@ -91,13 +91,13 @@
           "description": "Describe the unit or entity for the number,e.g., \"elephants\", \"meters\", \"snares\", \"$USD.\""
         },
         "category_field": {
-          "default": null,
-          "title": "Category Field - Choice field to categorize by (optional)",
+          "default": "",
+          "title": "Category Field - Choice field to categorize by",
           "type": "string",
           "description": "Differentiate events with the choices in a choice field. Each choice will be represented by a different color in the outputs."
         },
         "category_field_label": {
-          "default": null,
+          "default": "",
           "title": "Label for category data",
           "type": "string",
           "description": "The provided text will be used to label the category data in the outputs."

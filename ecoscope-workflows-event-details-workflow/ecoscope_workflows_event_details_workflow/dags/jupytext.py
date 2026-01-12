@@ -17,7 +17,7 @@ from ecoscope_workflows_core.tasks.config import (
     concat_string_vars as concat_string_vars,
 )
 from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_none_or_skip as default_if_string_is_none_or_skip,
+    default_if_string_is_empty as default_if_string_is_empty,
 )
 from ecoscope_workflows_core.tasks.config import (
     get_column_names_from_dataframe as get_column_names_from_dataframe,
@@ -50,6 +50,9 @@ from ecoscope_workflows_core.tasks.results import (
 from ecoscope_workflows_core.tasks.results import gather_dashboard as gather_dashboard
 from ecoscope_workflows_core.tasks.results import (
     merge_widget_views as merge_widget_views,
+)
+from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_none as any_dependency_is_none,
@@ -588,6 +591,7 @@ normalize_event_details = (
         df=filter_events,
         column="event_details",
         skip_if_not_exists=False,
+        sort_columns=False,
         **normalize_event_details_params,
     )
     .call()
@@ -912,12 +916,13 @@ default_category_field_params = dict()
 
 
 default_category_field = (
-    default_if_string_is_none_or_skip.set_task_instance_id("default_category_field")
+    default_if_string_is_empty.set_task_instance_id("default_category_field")
     .handle_errors()
     .with_tracing()
     .skipif(
         conditions=[
-            never,
+            any_is_empty_df,
+            any_dependency_skipped,
         ],
         unpack_depth=1,
     )
@@ -936,6 +941,38 @@ default_category_field = (
 # %%
 # parameters
 
+category_field_label_or_category_params = dict()
+
+# %%
+# call the task
+
+
+category_field_label_or_category = (
+    default_if_string_is_empty.set_task_instance_id("category_field_label_or_category")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(
+        value=category_field_label,
+        default=category_field,
+        **category_field_label_or_category_params,
+    )
+    .call()
+)
+
+
+# %% [markdown]
+# ##
+
+# %%
+# parameters
+
 default_category_field_label_params = dict()
 
 # %%
@@ -943,20 +980,19 @@ default_category_field_label_params = dict()
 
 
 default_category_field_label = (
-    default_if_string_is_none_or_skip.set_task_instance_id(
-        "default_category_field_label"
-    )
+    default_if_string_is_empty.set_task_instance_id("default_category_field_label")
     .handle_errors()
     .with_tracing()
     .skipif(
         conditions=[
-            never,
+            any_is_empty_df,
+            any_dependency_skipped,
         ],
         unpack_depth=1,
     )
     .partial(
-        value=category_field_label,
-        default=analysis_field_unit,
+        value=category_field_label_or_category,
+        default=category_field,
         **default_category_field_label_params,
     )
     .call()
@@ -1034,6 +1070,40 @@ get_category_display_names = (
 # %%
 # parameters
 
+ensure_analysis_column_params = dict()
+
+# %%
+# call the task
+
+
+ensure_analysis_column = (
+    assign_value.set_task_instance_id("ensure_analysis_column")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(
+        df=title_case_columns,
+        column_name=analysis_field,
+        value=None,
+        noop_if_column_exists=True,
+        **ensure_analysis_column_params,
+    )
+    .call()
+)
+
+
+# %% [markdown]
+# ##
+
+# %%
+# parameters
+
 ensure_category_column_params = dict()
 
 # %%
@@ -1052,7 +1122,7 @@ ensure_category_column = (
         unpack_depth=1,
     )
     .partial(
-        df=title_case_columns,
+        df=ensure_analysis_column,
         column_name=default_category_field,
         value="None",
         noop_if_column_exists=True,
@@ -1327,7 +1397,7 @@ by_category_field_str = (
     .with_tracing()
     .skipif(
         conditions=[
-            any_dependency_is_none,
+            any_dependency_is_empty_string,
         ],
         unpack_depth=1,
     )
@@ -1541,6 +1611,34 @@ split_event_groups = (
 
 
 # %% [markdown]
+# ##
+
+# %%
+# parameters
+
+drop_nan_values_params = dict()
+
+# %%
+# call the task
+
+
+drop_nan_values = (
+    drop_nan_values_by_column.set_task_instance_id("drop_nan_values")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(column_name=analysis_field, **drop_nan_values_params)
+    .mapvalues(argnames=["df"], argvalues=split_event_groups)
+)
+
+
+# %% [markdown]
 # ## Map Base Layers
 
 # %%
@@ -1694,7 +1792,7 @@ grouped_event_summary = (
         reset_index=False,
         **grouped_event_summary_params,
     )
-    .mapvalues(argnames=["df"], argvalues=split_event_groups)
+    .mapvalues(argnames=["df"], argvalues=drop_nan_values)
 )
 
 
@@ -1918,7 +2016,7 @@ grouped_events_pie_chart = (
         widget_id=set_pie_chart_title,
         **grouped_events_pie_chart_params,
     )
-    .mapvalues(argnames=["dataframe"], argvalues=split_event_groups)
+    .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
 )
 
 
@@ -2263,7 +2361,7 @@ events_bar_chart = (
         widget_id=set_bar_chart_title,
         **events_bar_chart_params,
     )
-    .mapvalues(argnames=["dataframe"], argvalues=split_event_groups)
+    .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
 )
 
 

@@ -8,7 +8,7 @@ from ecoscope_workflows_core.tasks.config import (
     concat_string_vars as concat_string_vars,
 )
 from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_none_or_skip as default_if_string_is_none_or_skip,
+    default_if_string_is_empty as default_if_string_is_empty,
 )
 from ecoscope_workflows_core.tasks.config import (
     get_column_names_from_dataframe as get_column_names_from_dataframe,
@@ -41,6 +41,9 @@ from ecoscope_workflows_core.tasks.results import (
 from ecoscope_workflows_core.tasks.results import gather_dashboard as gather_dashboard
 from ecoscope_workflows_core.tasks.results import (
     merge_widget_views as merge_widget_views,
+)
+from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_none as any_dependency_is_none,
@@ -179,14 +182,19 @@ def main(params: Params):
             "analysis_field_unit",
         ],
         "default_category_field": ["category_field"],
-        "default_category_field_label": ["category_field_label", "analysis_field_unit"],
+        "category_field_label_or_category": ["category_field_label", "category_field"],
+        "default_category_field_label": [
+            "category_field_label_or_category",
+            "category_field",
+        ],
         "title_case_columns": ["add_default_category_column"],
         "get_category_display_names": [
             "er_client_name",
             "event_type",
             "category_field_from_config",
         ],
-        "ensure_category_column": ["title_case_columns", "default_category_field"],
+        "ensure_analysis_column": ["title_case_columns", "analysis_field"],
+        "ensure_category_column": ["ensure_analysis_column", "default_category_field"],
         "map_display_names": [
             "ensure_category_column",
             "default_category_field",
@@ -206,6 +214,7 @@ def main(params: Params):
         "set_density_map_title": ["analysis_field_label"],
         "set_events_table_title": [],
         "split_event_groups": ["events_colormap", "groupers"],
+        "drop_nan_values": ["analysis_field", "split_event_groups"],
         "base_map_defs": [],
         "total_events": ["split_event_groups"],
         "total_events_sv_widget": ["total_events"],
@@ -216,7 +225,7 @@ def main(params: Params):
             "analysis_field",
             "analysis_field",
             "analysis_field",
-            "split_event_groups",
+            "drop_nan_values",
         ],
         "transpose_table": ["grouped_event_summary"],
         "rename_summary_columns": ["transpose_table"],
@@ -228,7 +237,7 @@ def main(params: Params):
             "analysis_field",
             "default_category_field",
             "set_pie_chart_title",
-            "split_event_groups",
+            "drop_nan_values",
         ],
         "grouped_pie_chart_html_urls": ["grouped_events_pie_chart"],
         "grouped_events_pie_chart_widgets": [
@@ -258,7 +267,7 @@ def main(params: Params):
             "analysis_field",
             "default_category_field",
             "set_bar_chart_title",
-            "split_event_groups",
+            "drop_nan_values",
         ],
         "events_bar_chart_html_url": ["events_bar_chart"],
         "events_bar_chart_widget": ["set_bar_chart_title", "events_bar_chart_html_url"],
@@ -588,6 +597,7 @@ def main(params: Params):
                 "df": DependsOn("filter_events"),
                 "column": "event_details",
                 "skip_if_not_exists": False,
+                "sort_columns": False,
             }
             | (params_dict.get("normalize_event_details") or {}),
             method="call",
@@ -788,13 +798,14 @@ def main(params: Params):
             method="call",
         ),
         "default_category_field": Node(
-            async_task=default_if_string_is_none_or_skip.validate()
+            async_task=default_if_string_is_empty.validate()
             .set_task_instance_id("default_category_field")
             .handle_errors()
             .with_tracing()
             .skipif(
                 conditions=[
-                    never,
+                    any_is_empty_df,
+                    any_dependency_skipped,
                 ],
                 unpack_depth=1,
             )
@@ -806,21 +817,42 @@ def main(params: Params):
             | (params_dict.get("default_category_field") or {}),
             method="call",
         ),
-        "default_category_field_label": Node(
-            async_task=default_if_string_is_none_or_skip.validate()
-            .set_task_instance_id("default_category_field_label")
+        "category_field_label_or_category": Node(
+            async_task=default_if_string_is_empty.validate()
+            .set_task_instance_id("category_field_label_or_category")
             .handle_errors()
             .with_tracing()
             .skipif(
                 conditions=[
-                    never,
+                    any_is_empty_df,
+                    any_dependency_skipped,
                 ],
                 unpack_depth=1,
             )
             .set_executor("lithops"),
             partial={
                 "value": DependsOn("category_field_label"),
-                "default": DependsOn("analysis_field_unit"),
+                "default": DependsOn("category_field"),
+            }
+            | (params_dict.get("category_field_label_or_category") or {}),
+            method="call",
+        ),
+        "default_category_field_label": Node(
+            async_task=default_if_string_is_empty.validate()
+            .set_task_instance_id("default_category_field_label")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "value": DependsOn("category_field_label_or_category"),
+                "default": DependsOn("category_field"),
             }
             | (params_dict.get("default_category_field_label") or {}),
             method="call",
@@ -866,6 +898,28 @@ def main(params: Params):
             | (params_dict.get("get_category_display_names") or {}),
             method="call",
         ),
+        "ensure_analysis_column": Node(
+            async_task=assign_value.validate()
+            .set_task_instance_id("ensure_analysis_column")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "df": DependsOn("title_case_columns"),
+                "column_name": DependsOn("analysis_field"),
+                "value": None,
+                "noop_if_column_exists": True,
+            }
+            | (params_dict.get("ensure_analysis_column") or {}),
+            method="call",
+        ),
         "ensure_category_column": Node(
             async_task=assign_value.validate()
             .set_task_instance_id("ensure_category_column")
@@ -880,7 +934,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("title_case_columns"),
+                "df": DependsOn("ensure_analysis_column"),
                 "column_name": DependsOn("default_category_field"),
                 "value": "None",
                 "noop_if_column_exists": True,
@@ -1078,7 +1132,7 @@ def main(params: Params):
             .with_tracing()
             .skipif(
                 conditions=[
-                    any_dependency_is_none,
+                    any_dependency_is_empty_string,
                 ],
                 unpack_depth=1,
             )
@@ -1240,6 +1294,29 @@ def main(params: Params):
             | (params_dict.get("split_event_groups") or {}),
             method="call",
         ),
+        "drop_nan_values": Node(
+            async_task=drop_nan_values_by_column.validate()
+            .set_task_instance_id("drop_nan_values")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "column_name": DependsOn("analysis_field"),
+            }
+            | (params_dict.get("drop_nan_values") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["df"],
+                "argvalues": DependsOn("split_event_groups"),
+            },
+        ),
         "base_map_defs": Node(
             async_task=set_base_maps.validate()
             .set_task_instance_id("base_map_defs")
@@ -1366,7 +1443,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("drop_nan_values"),
             },
         ),
         "transpose_table": Node(
@@ -1542,7 +1619,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["dataframe"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("drop_nan_values"),
             },
         ),
         "grouped_pie_chart_html_urls": Node(
@@ -1803,7 +1880,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["dataframe"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("drop_nan_values"),
             },
         ),
         "events_bar_chart_html_url": Node(
