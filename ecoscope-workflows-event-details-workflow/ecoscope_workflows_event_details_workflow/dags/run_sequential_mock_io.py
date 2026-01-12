@@ -33,14 +33,13 @@ get_events_from_combined_params = create_task_magicmock(  # 🧪
     func_name="get_events_from_combined_params",  # 🧪
 )  # 🧪
 from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_none_or_skip as default_if_string_is_none_or_skip,
+    default_if_string_is_empty as default_if_string_is_empty,
 )
 from ecoscope_workflows_core.tasks.config import title_case_var as title_case_var
 from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_none as any_dependency_is_none,
 )
-from ecoscope_workflows_core.tasks.skip import never as never
 from ecoscope_workflows_core.tasks.transformation import (
     add_temporal_index as add_temporal_index,
 )
@@ -109,6 +108,10 @@ from ecoscope_workflows_core.tasks.results import gather_dashboard as gather_das
 from ecoscope_workflows_core.tasks.results import (
     merge_widget_views as merge_widget_views,
 )
+from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_empty_string as any_dependency_is_empty_string,
+)
+from ecoscope_workflows_core.tasks.skip import never as never
 from ecoscope_workflows_core.tasks.transformation import (
     convert_column_values_to_numeric as convert_column_values_to_numeric,
 )
@@ -430,6 +433,7 @@ def main(params: Params):
             df=filter_events,
             column="event_details",
             skip_if_not_exists=False,
+            sort_columns=False,
             **(params_dict.get("normalize_event_details") or {}),
         )
         .call()
@@ -629,13 +633,14 @@ def main(params: Params):
     )
 
     default_category_field = (
-        default_if_string_is_none_or_skip.validate()
+        default_if_string_is_empty.validate()
         .set_task_instance_id("default_category_field")
         .handle_errors()
         .with_tracing()
         .skipif(
             conditions=[
-                never,
+                any_is_empty_df,
+                any_dependency_skipped,
             ],
             unpack_depth=1,
         )
@@ -647,20 +652,41 @@ def main(params: Params):
         .call()
     )
 
-    default_category_field_label = (
-        default_if_string_is_none_or_skip.validate()
-        .set_task_instance_id("default_category_field_label")
+    category_field_label_or_category = (
+        default_if_string_is_empty.validate()
+        .set_task_instance_id("category_field_label_or_category")
         .handle_errors()
         .with_tracing()
         .skipif(
             conditions=[
-                never,
+                any_is_empty_df,
+                any_dependency_skipped,
             ],
             unpack_depth=1,
         )
         .partial(
             value=category_field_label,
-            default=analysis_field_unit,
+            default=category_field,
+            **(params_dict.get("category_field_label_or_category") or {}),
+        )
+        .call()
+    )
+
+    default_category_field_label = (
+        default_if_string_is_empty.validate()
+        .set_task_instance_id("default_category_field_label")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            value=category_field_label_or_category,
+            default=category_field,
             **(params_dict.get("default_category_field_label") or {}),
         )
         .call()
@@ -707,6 +733,28 @@ def main(params: Params):
         .call()
     )
 
+    ensure_analysis_column = (
+        assign_value.validate()
+        .set_task_instance_id("ensure_analysis_column")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=title_case_columns,
+            column_name=analysis_field,
+            value=None,
+            noop_if_column_exists=True,
+            **(params_dict.get("ensure_analysis_column") or {}),
+        )
+        .call()
+    )
+
     ensure_category_column = (
         assign_value.validate()
         .set_task_instance_id("ensure_category_column")
@@ -720,7 +768,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=title_case_columns,
+            df=ensure_analysis_column,
             column_name=default_category_field,
             value="None",
             noop_if_column_exists=True,
@@ -912,7 +960,7 @@ def main(params: Params):
         .with_tracing()
         .skipif(
             conditions=[
-                any_dependency_is_none,
+                any_dependency_is_empty_string,
             ],
             unpack_depth=1,
         )
@@ -1053,6 +1101,24 @@ def main(params: Params):
         .call()
     )
 
+    drop_nan_values = (
+        drop_nan_values_by_column.validate()
+        .set_task_instance_id("drop_nan_values")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            column_name=analysis_field, **(params_dict.get("drop_nan_values") or {})
+        )
+        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+    )
+
     base_map_defs = (
         set_base_maps.validate()
         .set_task_instance_id("base_map_defs")
@@ -1155,7 +1221,7 @@ def main(params: Params):
             reset_index=False,
             **(params_dict.get("grouped_event_summary") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+        .mapvalues(argnames=["df"], argvalues=drop_nan_values)
     )
 
     transpose_table = (
@@ -1302,7 +1368,7 @@ def main(params: Params):
             widget_id=set_pie_chart_title,
             **(params_dict.get("grouped_events_pie_chart") or {}),
         )
-        .mapvalues(argnames=["dataframe"], argvalues=split_event_groups)
+        .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
 
     grouped_pie_chart_html_urls = (
@@ -1527,7 +1593,7 @@ def main(params: Params):
             widget_id=set_bar_chart_title,
             **(params_dict.get("events_bar_chart") or {}),
         )
-        .mapvalues(argnames=["dataframe"], argvalues=split_event_groups)
+        .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
 
     events_bar_chart_html_url = (

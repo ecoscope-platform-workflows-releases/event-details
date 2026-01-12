@@ -1,10 +1,10 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.20.1
+    version: 0.20.3
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.20.1
+    version: 0.20.3
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
@@ -136,6 +136,7 @@ workflow:
       df: ${{ workflow.filter_events.return }}
       column: event_details
       skip_if_not_exists: false
+      sort_columns: false
   - name: Add temporal index to Events
     id: events_add_temporal_index
     task: add_temporal_index
@@ -191,21 +192,20 @@ workflow:
       value: ${{ workflow.analysis_field_unit.return }}
       noop_if_column_exists: false
   - id: default_category_field
-    task: default_if_string_is_none_or_skip
-    skipif:
-      conditions:
-        - never
+    task: default_if_string_is_empty
     partial:
       value: ${{ workflow.category_field.return }}
       default: default_category
-  - id: default_category_field_label
-    task: default_if_string_is_none_or_skip
-    skipif:
-      conditions:
-        - never
+  - id: category_field_label_or_category
+    task: default_if_string_is_empty
     partial:
       value: ${{ workflow.category_field_label.return }}
-      default: ${{ workflow.analysis_field_unit.return }}
+      default: ${{ workflow.category_field.return }}
+  - id: default_category_field_label
+    task: default_if_string_is_empty
+    partial:
+      value: ${{ workflow.category_field_label_or_category.return }}
+      default: ${{ workflow.category_field.return }}
   - id: title_case_columns
     task: title_case_columns_by_prefix
     partial:
@@ -217,10 +217,17 @@ workflow:
       client: ${{ workflow.er_client_name.return }}
       event_type: ${{ workflow.event_type.return }}
       choice_field: ${{ workflow.category_field_from_config.return }}
-  - id: ensure_category_column
+  - id: ensure_analysis_column
     task: assign_value
     partial:
       df: ${{ workflow.title_case_columns.return }}
+      column_name: ${{ workflow.analysis_field.return }}
+      value: null
+      noop_if_column_exists: true
+  - id: ensure_category_column
+    task: assign_value
+    partial:
+      df: ${{ workflow.ensure_analysis_column.return }}
       column_name: ${{ workflow.default_category_field.return }}
       value: None
       noop_if_column_exists: true
@@ -305,7 +312,7 @@ workflow:
     task: concat_string_vars
     skipif:
       conditions:
-        - any_dependency_is_none
+        - any_dependency_is_empty_string
     partial:
       values:
         - ' by '
@@ -362,6 +369,13 @@ workflow:
     partial:
       df: ${{ workflow.events_colormap.return }}
       groupers: ${{ workflow.groupers.return }}
+  - id: drop_nan_values
+    task: drop_nan_values_by_column
+    partial:
+      column_name: ${{ workflow.analysis_field.return }}
+    mapvalues:
+      argnames: df
+      argvalues: ${{ workflow.split_event_groups.return }}
   - name: Map Base Layers
     id: base_map_defs
     task: set_base_maps
@@ -414,7 +428,7 @@ workflow:
       reset_index: false
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.split_event_groups.return }}
+      argvalues: ${{ workflow.drop_nan_values.return }}
   - name: Transpose Table
     id: transpose_table
     task: transpose
@@ -490,7 +504,7 @@ workflow:
       widget_id: ${{ workflow.set_pie_chart_title.return }}
     mapvalues:
       argnames: dataframe
-      argvalues: ${{ workflow.split_event_groups.return }}
+      argvalues: ${{ workflow.drop_nan_values.return }}
   - name: Persist Pie Chart as Text
     id: grouped_pie_chart_html_urls
     task: persist_text
@@ -617,7 +631,7 @@ workflow:
           widget_id: ${{ workflow.set_bar_chart_title.return }}
         mapvalues:
           argnames: dataframe
-          argvalues: ${{ workflow.split_event_groups.return }}
+          argvalues: ${{ workflow.drop_nan_values.return }}
       - name: Persist Bar Chart as Text
         id: events_bar_chart_html_url
         task: persist_text
