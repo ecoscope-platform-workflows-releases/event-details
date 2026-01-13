@@ -1,10 +1,10 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.20.3
+    version: 0.20.4
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.20.3
+    version: 0.20.4
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
@@ -541,6 +541,11 @@ workflow:
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.split_event_groups.return }}
+  - id: drop_empty_geometry
+    task: drop_null_geometry
+    mapvalues:
+      argnames: gdf
+      argvalues: ${{ workflow.normalize_analysis_field.return }}
   - name: Create map layer from grouped Events
     id: grouped_events_map_layer
     task: create_point_layer
@@ -566,7 +571,7 @@ workflow:
         - ${{ workflow.analysis_field.return }}
     mapvalues:
       argnames: geodataframe
-      argvalues: ${{ workflow.normalize_analysis_field.return }}
+      argvalues: ${{ workflow.drop_empty_geometry.return }}
   - name: Draw Ecomap from grouped Events
     id: grouped_events_ecomap
     task: draw_ecomap

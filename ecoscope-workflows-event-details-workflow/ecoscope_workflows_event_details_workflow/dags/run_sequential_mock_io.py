@@ -158,6 +158,9 @@ from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_nan_values_by_column as drop_nan_values_by_column,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    drop_null_geometry as drop_null_geometry,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     normalize_numeric_column as normalize_numeric_column,
 )
 
@@ -1448,6 +1451,22 @@ def main(params: Params):
         .mapvalues(argnames=["df"], argvalues=split_event_groups)
     )
 
+    drop_empty_geometry = (
+        drop_null_geometry.validate()
+        .set_task_instance_id("drop_empty_geometry")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(**(params_dict.get("drop_empty_geometry") or {}))
+        .mapvalues(argnames=["gdf"], argvalues=normalize_analysis_field)
+    )
+
     grouped_events_map_layer = (
         create_point_layer.validate()
         .set_task_instance_id("grouped_events_map_layer")
@@ -1481,7 +1500,7 @@ def main(params: Params):
             ],
             **(params_dict.get("grouped_events_map_layer") or {}),
         )
-        .mapvalues(argnames=["geodataframe"], argvalues=normalize_analysis_field)
+        .mapvalues(argnames=["geodataframe"], argvalues=drop_empty_geometry)
     )
 
     grouped_events_ecomap = (
