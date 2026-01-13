@@ -142,6 +142,9 @@ from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_nan_values_by_column as drop_nan_values_by_column,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    drop_null_geometry as drop_null_geometry,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     normalize_json_column as normalize_json_column,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
@@ -246,10 +249,11 @@ def main(params: Params):
         ],
         "grouped_events_pie_widget_merge": ["grouped_events_pie_chart_widgets"],
         "normalize_analysis_field": ["analysis_field", "split_event_groups"],
+        "drop_empty_geometry": ["normalize_analysis_field"],
         "grouped_events_map_layer": [
             "default_category_field",
             "analysis_field",
-            "normalize_analysis_field",
+            "drop_empty_geometry",
         ],
         "grouped_events_ecomap": [
             "base_map_defs",
@@ -1711,6 +1715,26 @@ def main(params: Params):
                 "argvalues": DependsOn("split_event_groups"),
             },
         ),
+        "drop_empty_geometry": Node(
+            async_task=drop_null_geometry.validate()
+            .set_task_instance_id("drop_empty_geometry")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial=(params_dict.get("drop_empty_geometry") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("normalize_analysis_field"),
+            },
+        ),
         "grouped_events_map_layer": Node(
             async_task=create_point_layer.validate()
             .set_task_instance_id("grouped_events_map_layer")
@@ -1748,7 +1772,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["geodataframe"],
-                "argvalues": DependsOn("normalize_analysis_field"),
+                "argvalues": DependsOn("drop_empty_geometry"),
             },
         ),
         "grouped_events_ecomap": Node(
