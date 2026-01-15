@@ -1044,7 +1044,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            values=[analysis_field_label, " Density"],
+            values=[analysis_field_label, " Sum"],
             **(params_dict.get("set_density_map_title") or {}),
         )
         .call()

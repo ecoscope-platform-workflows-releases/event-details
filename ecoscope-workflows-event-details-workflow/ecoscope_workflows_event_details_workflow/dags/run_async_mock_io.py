@@ -1269,7 +1269,7 @@ def main(params: Params):
             partial={
                 "values": [
                     DependsOn("analysis_field_label"),
-                    " Density",
+                    " Sum",
                 ],
             }
             | (params_dict.get("set_density_map_title") or {}),

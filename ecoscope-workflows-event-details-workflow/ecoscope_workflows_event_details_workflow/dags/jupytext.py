@@ -1552,7 +1552,7 @@ set_density_map_title = (
         ],
         unpack_depth=1,
     )
-    .partial(values=[analysis_field_label, " Density"], **set_density_map_title_params)
+    .partial(values=[analysis_field_label, " Sum"], **set_density_map_title_params)
     .call()
 )
 
