@@ -56,7 +56,7 @@
           "data": null,
           "id": 5,
           "is_filtered": false,
-          "title": "Herd Size Density",
+          "title": "Herd Size Sum",
           "widget_type": "map"
         },
         {
