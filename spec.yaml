@@ -1,39 +1,39 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: "*"
-    channel: file:///tmp/ecoscope-workflows/release/artifacts/
+    version: 0.21.0
+    channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: "*"
-    channel: file:///tmp/ecoscope-workflows/release/artifacts/
+    version: 0.21.0
+    channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
-    set_event_details_combined.properties.event_type.ecoscope:event_type_schema_properties: "properties.er_client_name.properties.data_source.properties.name"
-    set_event_details_combined.properties.analysis_field.ecoscope:event_type_schema_numeric_prop: "properties.set_event_details_combined.properties.event_type"
-    set_event_details_combined.properties.category_field.ecoscope:event_type_schema_choice_prop: "properties.set_event_details_combined.properties.event_type"
+    set_event_details_combined.properties.event_type.ecoscope:event_type_schema_properties: properties.er_client_name.properties.data_source.properties.name
+    set_event_details_combined.properties.analysis_field.ecoscope:event_type_schema_numeric_prop: properties.set_event_details_combined.properties.event_type
+    set_event_details_combined.properties.category_field.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
   $defs:
-    ValueGrouper.oneOf: [
-      {"const": "Event Category", "title": "Event Category"},
-      {"const": "Reported By", "title": "Reported By Name"},
-    ]
+    ValueGrouper.oneOf:
+      - const: Event Category
+        title: Event Category
+      - const: Reported By
+        title: Reported By Name
   uiSchema:
     set_event_details_combined.event_types.ui:options.displayLabel: false
     filter_events.filter_point_coords.items.ui:options.label: false
     base_map_defs.base_maps.items.ui:options.label: false
-    Event Density Map.events_meshgrid.auto_scale_or_custom_cell_size: {
-      "anyOf": [
-        {
-          "ui:help": "Auto-scale for an optimized grid cell size based the workflow data or Customize to set a specific grid cell size.",
-          "ui:options": {"label": false},
-          "auto_scale_or_custom": {"ui:widget": "hidden"}
-        },
-        {
-          "ui:options": {"label": false},
-          "auto_scale_or_custom": {"ui:widget": "hidden"}
-        }
-      ],
-      "auto_scale_or_custom": {"ui:widget": "hidden"}
-    }
+    Event Density Map.events_meshgrid.auto_scale_or_custom_cell_size:
+      anyOf:
+        - ui:help: Auto-scale for an optimized grid cell size based the workflow data or Customize to set a specific grid cell size.
+          ui:options:
+            label: false
+          auto_scale_or_custom:
+            ui:widget: hidden
+        - ui:options:
+            label: false
+          auto_scale_or_custom:
+            ui:widget: hidden
+      auto_scale_or_custom:
+        ui:widget: hidden
 task-instance-defaults:
   skipif:
     conditions:
@@ -43,85 +43,85 @@ workflow:
   - name: Workflow Details
     id: workflow_details
     task: set_workflow_details
-
   - name: Data Source
     id: er_client_name
     task: set_er_connection
-
   - name: Time Range
     id: time_range
     task: set_time_range
     partial:
-      time_format: "%d %b %Y %H:%M:%S"
-
+      time_format: '%d %b %Y %H:%M:%S'
   - name: Extract Timezone Selection
     id: get_timezone
     task: get_timezone_from_time_range
     partial:
       time_range: ${{ workflow.time_range.return }}
-
-  # events
-  - name: "Event Types"
+  - name: Event Types
     id: set_event_details_combined
     task: set_event_details_params
     partial:
       client: ${{ workflow.er_client_name.return }}
       time_range: ${{ workflow.time_range.return }}
-      event_columns: ["id", "time", "event_type", "event_category", "reported_by", "serial_number", "location", "event_details", "geometry"]
+      event_columns:
+        - id
+        - time
+        - event_type
+        - event_category
+        - reported_by
+        - serial_number
+        - location
+        - event_details
+        - geometry
       raise_on_empty: false
       include_details: true
       include_updates: false
       include_related_events: false
       include_display_values: false
-
   - id: get_events_data
     task: get_events_from_combined_params
     partial:
       combined_params: ${{ workflow.set_event_details_combined.return }}
-
-  - name: "Convert to timezone"
+  - name: Convert to timezone
     id: convert_to_user_timezone
     task: convert_values_to_timezone
     partial:
       df: ${{ workflow.get_events_data.return }}
       timezone: ${{ workflow.get_timezone.return }}
-      columns: ["time"]
-
+      columns:
+        - time
   - name: Extract Latitude from Events
     id: extract_latitude
     task: extract_value_from_json_column
     partial:
       df: ${{ workflow.convert_to_user_timezone.return }}
-      column_name: "location"
-      field_name_options: ["latitude"]
-      output_type: "str"
-      output_column_name: "latitude"
-
+      column_name: location
+      field_name_options:
+        - latitude
+      output_type: str
+      output_column_name: latitude
   - name: Extract Longitude from Events
     id: extract_longitude
     task: extract_value_from_json_column
     partial:
       df: ${{ workflow.extract_latitude.return }}
-      column_name: "location"
-      field_name_options: ["longitude"]
-      output_type: "str"
-      output_column_name: "longitude"
-
+      column_name: location
+      field_name_options:
+        - longitude
+      output_type: str
+      output_column_name: longitude
   - name: Extract reported_by_name from Events
     id: extract_reported_by
     task: extract_value_from_json_column
     partial:
       df: ${{ workflow.extract_longitude.return }}
-      column_name: "reported_by"
-      field_name_options: ["name"]
-      output_type: "str"
-      output_column_name: "reported_by_name"
-
-  # set 'global' groupers
+      column_name: reported_by
+      field_name_options:
+        - name
+      output_type: str
+      output_column_name: reported_by_name
   - name: Group Data
     id: groupers
     task: set_groupers
-
   - name: Event Location Filter
     id: filter_events
     task: apply_reloc_coord_filter
@@ -135,7 +135,7 @@ workflow:
     task: normalize_json_column
     partial:
       df: ${{ workflow.filter_events.return }}
-      column: "event_details"
+      column: event_details
       skip_if_not_exists: false
       sort_columns: false
   - name: Add temporal index to Events
@@ -143,12 +143,10 @@ workflow:
     task: add_temporal_index
     partial:
       df: ${{ workflow.normalize_event_details.return }}
-      time_col: "time"
+      time_col: time
       groupers: ${{ workflow.groupers.return }}
       cast_to_datetime: true
-      format: "mixed"
-
-  # Event Details selections
+      format: mixed
   - id: analysis_field_from_config
     task: get_analysis_field_from_event_details
     partial:
@@ -187,52 +185,39 @@ workflow:
     task: get_event_type_from_event_details
     partial:
       combined_params: ${{ workflow.set_event_details_combined.return }}
-
-  # Create default column
   - id: add_default_category_column
     task: assign_value
     partial:
       df: ${{ workflow.events_add_temporal_index.return }}
-      column_name: "default_category"
+      column_name: default_category
       value: ${{ workflow.analysis_field_unit.return }}
       noop_if_column_exists: false
-
-  # Default category field in the absence of user selection
   - id: default_category_field
     task: default_if_string_is_empty
     partial:
       value: ${{ workflow.category_field.return }}
-      default: "default_category"
-
-  # Default label field in the absence of user selection
-  # User category field if set, otherwise use analysis field unit
+      default: default_category
   - id: category_field_label_or_category
     task: default_if_string_is_empty
     partial:
       value: ${{ workflow.category_field_label.return }}
       default: ${{ workflow.category_field.return }}
-
   - id: default_category_field_label
     task: default_if_string_is_empty
     partial:
       value: ${{ workflow.category_field_label_or_category.return }}
       default: ${{ workflow.category_field.return }}
-
-  # Title case event details columns for display
   - id: title_case_columns
     task: title_case_columns_by_prefix
     partial:
       df: ${{ workflow.add_default_category_column.return }}
-      prefix: "event_details__"
-
-  # Get category field display names
+      prefix: event_details__
   - id: get_category_display_names
     task: get_choices_from_v2_event_type
     partial:
       client: ${{ workflow.er_client_name.return }}
       event_type: ${{ workflow.event_type.return }}
       choice_field: ${{ workflow.category_field_from_config.return }}
-
   - id: ensure_analysis_column
     task: assign_value
     partial:
@@ -240,58 +225,56 @@ workflow:
       column_name: ${{ workflow.analysis_field.return }}
       value: null
       noop_if_column_exists: true
-
-  # Ensure the category field column exists
-  # TODO use a dynamic schema to enforce this
-  # https://github.com/wildlife-dynamics/ecoscope-workflows/issues/1121
   - id: ensure_category_column
     task: assign_value
     partial:
       df: ${{ workflow.ensure_analysis_column.return }}
       column_name: ${{ workflow.default_category_field.return }}
-      value: "None"
+      value: None
       noop_if_column_exists: true
-
   - id: map_display_names
     task: map_values
     partial:
       df: ${{ workflow.ensure_category_column.return }}
       column_name: ${{ workflow.default_category_field.return }}
       value_map: ${{ workflow.get_category_display_names.return }}
-      missing_values: "preserve"
+      missing_values: preserve
       replacement: null
-
   - id: convert_na_values
     task: fill_na
     partial:
       df: ${{ workflow.map_display_names.return }}
-      value: "None"
+      value: None
       columns:
         - ${{ workflow.default_category_field.return }}
-
   - name: Rename columns for display
     id: rename_columns
     task: map_columns
     partial:
       df: ${{ workflow.convert_na_values.return }}
-      drop_columns: ["reported_by", "location", "Updates"]
+      drop_columns:
+        - reported_by
+        - location
+        - Updates
       retain_columns: []
       rename_columns:
-        serial_number: "Serial Number"
-        time: "Event Time"
-        reported_by_name: "Reported By"
-        latitude: "Latitude"
-        longitude: "Longitude"
-        event_category: "Event Category"
-
+        serial_number: Serial Number
+        time: Event Time
+        reported_by_name: Reported By
+        latitude: Latitude
+        longitude: Longitude
+        event_category: Event Category
   - name: Reorder columns for display
     id: column_display_order
     task: reorder_columns
     partial:
       df: ${{ workflow.rename_columns.return }}
-      columns: ["Serial Number", "Event Time", "Reported By", "Latitude", "Longitude"]
-
-  # Ensure analysis field is numeric, because V1 events don't have to respect the field type
+      columns:
+        - Serial Number
+        - Event Time
+        - Reported By
+        - Latitude
+        - Longitude
   - name: Ensure Numeric Analysis Field
     id: ensure_numeric
     task: convert_column_values_to_numeric
@@ -299,8 +282,6 @@ workflow:
       df: ${{ workflow.rename_columns.return }}
       columns:
         - ${{ workflow.analysis_field.return }}
-
-  # Colormap events
   - name: Events Colormap
     id: events_colormap
     task: apply_color_map
@@ -308,30 +289,26 @@ workflow:
       df: ${{ workflow.ensure_numeric.return }}
       input_column_name: ${{ workflow.default_category_field.return }}
       colormap:
-        - "#312B86"
-        - "#08D1CC"
-        - "#FF3FB3"
-        - "#20BF55"
-        - "#FF9F1C"
-        - "#6460B0"
-        - "#FF7FCC"
-        - "#4DE3DD"
-        - "#6BE39A"
-        - "#FFC46F"
-        - "#1E215C"
-        - "#C80088"
-        - "#008784"
-        - "#08853A"
-        - "#C46C00"
-      output_column_name: "events_colormap"
-
-  # Summary table widget title
+        - '#312B86'
+        - '#08D1CC'
+        - '#FF3FB3'
+        - '#20BF55'
+        - '#FF9F1C'
+        - '#6460B0'
+        - '#FF7FCC'
+        - '#4DE3DD'
+        - '#6BE39A'
+        - '#FFC46F'
+        - '#1E215C'
+        - '#C80088'
+        - '#008784'
+        - '#08853A'
+        - '#C46C00'
+      output_column_name: events_colormap
   - id: set_summary_table_title
     task: set_string_var
     partial:
-      var: "${{ workflow.analysis_field_label.return }}"
-
-  # Handle semi-dynamic widget titles
+      var: ${{ workflow.analysis_field_label.return }}
   - id: by_category_field_str
     task: concat_string_vars
     skipif:
@@ -339,15 +316,13 @@ workflow:
         - any_dependency_is_empty_string
     partial:
       values:
-        - " by "
+        - ' by '
         - ${{ workflow.category_field_label.return }}
-
-  # Pie chart widget title
   - id: pie_chart_title_pt1
     task: concat_string_vars
     partial:
       values:
-        - "Proportion of "
+        - 'Proportion of '
         - ${{ workflow.analysis_field_label.return }}
   - id: set_pie_chart_title
     task: concat_string_vars
@@ -358,8 +333,6 @@ workflow:
       values:
         - ${{ workflow.pie_chart_title_pt1.return }}
         - ${{ workflow.by_category_field_str.return }}
-
-  # Events map widget title
   - id: set_events_map_title
     task: concat_string_vars
     skipif:
@@ -369,9 +342,7 @@ workflow:
       values:
         - ${{ workflow.analysis_field_label.return }}
         - ${{ workflow.by_category_field_str.return }}
-        - " Locations"
-
-  # Bar Chart widget title
+        - ' Locations'
   - id: set_bar_chart_title
     task: concat_string_vars
     skipif:
@@ -381,32 +352,24 @@ workflow:
       values:
         - ${{ workflow.analysis_field_label.return }}
         - ${{ workflow.by_category_field_str.return }}
-        - " Over Time"
-
-  # Density widget title
-  - name: "Set Density Map Title"
+        - ' Over Time'
+  - name: Set Density Map Title
     id: set_density_map_title
     task: concat_string_vars
     partial:
       values:
-        - "${{ workflow.analysis_field_label.return }}"
-        - " Sum"
-
-  # Events table widget title
+        - ${{ workflow.analysis_field_label.return }}
+        - ' Sum'
   - id: set_events_table_title
     task: set_string_var
     partial:
-      var: "Events Table"
-
-  # Grouped outputs
+      var: Events Table
   - name: Split Events by Group
     id: split_event_groups
     task: split_groups
     partial:
       df: ${{ workflow.events_colormap.return }}
       groupers: ${{ workflow.groupers.return }}
-
-  # Drop nan values from numeric column
   - id: drop_nan_values
     task: drop_nan_values_by_column
     partial:
@@ -414,13 +377,9 @@ workflow:
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.split_event_groups.return }}
-
-  # Set base maps
   - name: Map Base Layers
     id: base_map_defs
     task: set_base_maps
-
-  # Count of events single value widget
   - name: Calculate Total Events Per Group
     id: total_events
     task: dataframe_count
@@ -434,37 +393,37 @@ workflow:
       conditions:
         - never
     partial:
-      title: "Event Count"
+      title: Event Count
       decimal_places: 1
     map:
-      argnames: [view, data]
+      argnames:
+        - view
+        - data
       argvalues: ${{ workflow.total_events.return }}
   - name: Merge per group Total Patrols SV widgets
     id: total_events_grouped_sv_widget
     task: merge_widget_views
     partial:
       widgets: ${{ workflow.total_events_sv_widget.return }}
-
-  # Summary Table
   - name: Summarize events
     id: grouped_event_summary
     task: summarize_df
     partial:
       summary_params:
-        - display_name: "Sum"
-          aggregator: "sum"
+        - display_name: Sum
+          aggregator: sum
           column: ${{ workflow.analysis_field.return }}
-        - display_name: "Min"
-          aggregator: "min"
+        - display_name: Min
+          aggregator: min
           column: ${{ workflow.analysis_field.return }}
-        - display_name: "Max"
-          aggregator: "max"
+        - display_name: Max
+          aggregator: max
           column: ${{ workflow.analysis_field.return }}
-        - display_name: "Median"
-          aggregator: "median"
+        - display_name: Median
+          aggregator: median
           column: ${{ workflow.analysis_field.return }}
-        - display_name: "Mean"
-          aggregator: "mean"
+        - display_name: Mean
+          aggregator: mean
           column: ${{ workflow.analysis_field.return }}
       groupby_cols: null
       reset_index: false
@@ -475,7 +434,7 @@ workflow:
     id: transpose_table
     task: transpose
     partial:
-      transposed_column_name: "Summary Stats"
+      transposed_column_name: Summary Stats
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.grouped_event_summary.return }}
@@ -486,7 +445,7 @@ workflow:
       drop_columns: []
       retain_columns: []
       rename_columns:
-        "0": "Summary Values"
+        "0": Summary Values
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.transpose_table.return }}
@@ -494,7 +453,9 @@ workflow:
     id: summary_table
     task: draw_table
     partial:
-      columns: ["Summary Stats", "Summary Values"]
+      columns:
+        - Summary Stats
+        - Summary Values
       table_config:
         enable_sorting: true
         enable_filtering: false
@@ -509,7 +470,7 @@ workflow:
     task: persist_text
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: "v2"
+      filename_suffix: v2
     mapvalues:
       argnames: text
       argvalues: ${{ workflow.summary_table.return }}
@@ -522,23 +483,23 @@ workflow:
     partial:
       title: ${{ workflow.set_summary_table_title.return }}
     map:
-      argnames: [view, data]
+      argnames:
+        - view
+        - data
       argvalues: ${{ workflow.summary_html_urls.return }}
   - name: Merge Summary Table Widget Views
     id: grouped_summary_table_widget
     task: merge_widget_views
     partial:
       widgets: ${{ workflow.summary_table_single_views.return }}
-
-  # Pie Chart
   - name: Draw Pie Chart for Events
     id: grouped_events_pie_chart
     task: draw_pie_chart
     partial:
       value_column: ${{ workflow.analysis_field.return }}
-      color_column: "events_colormap"
+      color_column: events_colormap
       plot_style:
-        textinfo: "value"
+        textinfo: value
       label_column: ${{ workflow.default_category_field.return }}
       layout_style: null
       widget_id: ${{ workflow.set_pie_chart_title.return }}
@@ -550,7 +511,7 @@ workflow:
     task: persist_text
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: "v2"
+      filename_suffix: v2
     mapvalues:
       argnames: text
       argvalues: ${{ workflow.grouped_events_pie_chart.return }}
@@ -563,21 +524,21 @@ workflow:
     partial:
       title: ${{ workflow.set_pie_chart_title.return }}
     map:
-      argnames: [view, data]
+      argnames:
+        - view
+        - data
       argvalues: ${{ workflow.grouped_pie_chart_html_urls.return }}
   - name: Merge Pie Chart Widget Views
     id: grouped_events_pie_widget_merge
     task: merge_widget_views
     partial:
       widgets: ${{ workflow.grouped_events_pie_chart_widgets.return }}
-
-  # Events map
   - name: Normalize numeric values
     id: normalize_analysis_field
     task: normalize_numeric_column
     partial:
       column: ${{ workflow.analysis_field.return }}
-      output_column_name: "normalized_analysis_field"
+      output_column_name: normalized_analysis_field
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.split_event_groups.return }}
@@ -596,18 +557,18 @@ workflow:
         - all_geometry_are_none
     partial:
       layer_style:
-        fill_color_column: "events_colormap"
-        get_radius: "normalized_analysis_field"
+        fill_color_column: events_colormap
+        get_radius: normalized_analysis_field
         stroked: true
-        get_line_color: "#FFFFFF"
-        radius_scale: 5 # Analysis field values are normalized
+        get_line_color: '#FFFFFF'
+        radius_scale: 5
       legend:
         label_column: ${{ workflow.default_category_field.return }}
-        color_column: "events_colormap"
+        color_column: events_colormap
       tooltip_columns:
-        - "Serial Number"
-        - "Event Time"
-        - "Reported By"
+        - Serial Number
+        - Event Time
+        - Reported By
         - ${{ workflow.analysis_field.return }}
     mapvalues:
       argnames: geodataframe
@@ -619,11 +580,11 @@ workflow:
       title: null
       tile_layers: ${{ workflow.base_map_defs.return }}
       north_arrow_style:
-        placement: "top-left"
+        placement: top-left
       legend_style:
         title: ${{ workflow.default_category_field_label.return }}
         format_title: false
-        placement: "bottom-right"
+        placement: bottom-right
       static: false
       max_zoom: 20
       widget_id: ${{ workflow.set_events_map_title.return }}
@@ -635,7 +596,7 @@ workflow:
     task: persist_text
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: "v2"
+      filename_suffix: v2
     mapvalues:
       argnames: text
       argvalues: ${{ workflow.grouped_events_ecomap.return }}
@@ -648,31 +609,30 @@ workflow:
     partial:
       title: ${{ workflow.set_events_map_title.return }}
     map:
-      argnames: [view, data]
+      argnames:
+        - view
+        - data
       argvalues: ${{ workflow.grouped_events_ecomap_html_url.return }}
   - name: Merge Events Map Widget Views
     id: grouped_events_map_widget_merge
     task: merge_widget_views
     partial:
       widgets: ${{ workflow.grouped_events_map_widget.return }}
-
-  # Bar chart
   - title: Events Bar Chart
     type: task-group
-    description: >-
-      The bar chart shows how many events of different types occurred over time. Choose the time interval for the x-axis to control how event counts are summarized over time.
+    description: The bar chart shows how many events of different types occurred over time. Choose the time interval for the x-axis to control how event counts are summarized over time.
     tasks:
-      - name: "" # Draw Time Series Bar Chart for Events
+      - name: null
         id: events_bar_chart
         task: draw_time_series_bar_chart
         partial:
-          x_axis: "Event Time"
+          x_axis: Event Time
           y_axis: ${{ workflow.analysis_field.return }}
           category: ${{ workflow.default_category_field.return }}
-          agg_function: "sum"
-          color_column: "events_colormap"
+          agg_function: sum
+          color_column: events_colormap
           plot_style:
-            xperiodalignment: "middle"
+            xperiodalignment: middle
           layout_style: null
           widget_id: ${{ workflow.set_bar_chart_title.return }}
         mapvalues:
@@ -683,7 +643,7 @@ workflow:
         task: persist_text
         partial:
           root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-          filename_suffix: "v2"
+          filename_suffix: v2
         mapvalues:
           argnames: text
           argvalues: ${{ workflow.events_bar_chart.return }}
@@ -696,21 +656,20 @@ workflow:
         partial:
           title: ${{ workflow.set_bar_chart_title.return }}
         map:
-          argnames: [view, data]
+          argnames:
+            - view
+            - data
           argvalues: ${{ workflow.events_bar_chart_html_url.return }}
       - name: Merge Bar Plot Widget Views
         id: grouped_bar_plot_widget_merge
         task: merge_widget_views
         partial:
           widgets: ${{ workflow.events_bar_chart_widget.return }}
-
-  # Density Map
   - title: Event Density Map
     type: task-group
-    description: >-
-      These settings generate a grid-based heatmap showing where events are concentrated.
+    description: These settings generate a grid-based heatmap showing where events are concentrated.
     tasks:
-      - name: "" # Create Events Meshgrid
+      - name: null
         id: events_meshgrid
         task: create_meshgrid
         skipif:
@@ -726,7 +685,7 @@ workflow:
         task: calculate_feature_density
         partial:
           meshgrid: ${{ workflow.events_meshgrid.return }}
-          geometry_type: "point"
+          geometry_type: point
           sum_column: ${{ workflow.analysis_field.return }}
         mapvalues:
           argnames: geodataframe
@@ -735,7 +694,7 @@ workflow:
         id: drop_nan_percentiles
         task: drop_nan_values_by_column
         partial:
-          column_name: "density"
+          column_name: density
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.grouped_events_feature_density.return }}
@@ -743,9 +702,9 @@ workflow:
         id: sort_grouped_density_values
         task: sort_values
         partial:
-          column_name: "density"
+          column_name: density
           ascending: true
-          na_position: "last"
+          na_position: last
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.drop_nan_percentiles.return }}
@@ -753,10 +712,10 @@ workflow:
         id: classify_fd
         task: apply_classification
         partial:
-          input_column_name: "density"
-          output_column_name: "density_bins"
+          input_column_name: density
+          output_column_name: density_bins
           classification_options:
-            scheme: "equal_interval"
+            scheme: equal_interval
             k: 9
           label_options:
             label_ranges: true
@@ -768,9 +727,18 @@ workflow:
         id: grouped_fd_colormap
         task: apply_color_map
         partial:
-          input_column_name: "density_bins"
-          colormap: ["#5C4FE7", "#269CD5", "#00D0C8", "#81D670", "#FFD000", "#F9BB12", "#FF9600", "#FA7306", "#F23B0E"]
-          output_column_name: "density_colormap"
+          input_column_name: density_bins
+          colormap:
+            - '#5C4FE7'
+            - '#269CD5'
+            - '#00D0C8'
+            - '#81D670'
+            - '#FFD000'
+            - '#F9BB12'
+            - '#FF9600'
+            - '#FA7306'
+            - '#F23B0E'
+          output_column_name: density_colormap
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.classify_fd.return }}
@@ -781,7 +749,7 @@ workflow:
           drop_columns: []
           retain_columns: []
           rename_columns:
-            density: "Density"
+            density: Density
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.grouped_fd_colormap.return }}
@@ -795,13 +763,14 @@ workflow:
             - all_geometry_are_none
         partial:
           layer_style:
-            fill_color_column: "density_colormap"
+            fill_color_column: density_colormap
             get_line_width: 0
-            opacity: 0.4
+            opacity: 0.400000
           legend:
-            label_column: "density_bins"
-            color_column: "density_colormap"
-          tooltip_columns: ["Density"]
+            label_column: density_bins
+            color_column: density_colormap
+          tooltip_columns:
+            - Density
         mapvalues:
           argnames: geodataframe
           argvalues: ${{ workflow.fd_rename_columns.return}}
@@ -812,11 +781,11 @@ workflow:
           title: null
           tile_layers: ${{ workflow.base_map_defs.return }}
           north_arrow_style:
-            placement: "top-left"
+            placement: top-left
           legend_style:
             title: ${{ workflow.analysis_field_unit.return }}
             format_title: false
-            placement: "bottom-right"
+            placement: bottom-right
           static: false
           max_zoom: 20
           widget_id: ${{ workflow.set_density_map_title.return }}
@@ -828,7 +797,7 @@ workflow:
         task: persist_text
         partial:
           root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-          filename_suffix: "v2"
+          filename_suffix: v2
         mapvalues:
           argnames: text
           argvalues: ${{ workflow.grouped_fd_ecomap.return }}
@@ -841,20 +810,26 @@ workflow:
         partial:
           title: ${{ workflow.set_density_map_title.return }}
         map:
-          argnames: [view, data]
+          argnames:
+            - view
+            - data
           argvalues: ${{ workflow.grouped_fd_ecomap_html_url.return }}
       - name: Merge Feature Density Widget Views
         id: grouped_fd_map_widget_merge
         task: merge_widget_views
         partial:
           widgets: ${{ workflow.grouped_fd_map_widget.return }}
-
-  # Events Table
   - id: events_table_columns
     task: get_column_names_from_dataframe
     partial:
       df: ${{ workflow.column_display_order.return }}
-      exclude_column_names: ["id", "geometry", "events_colormap", "event_type", "default_category", "Event Category"]
+      exclude_column_names:
+        - id
+        - geometry
+        - events_colormap
+        - event_type
+        - default_category
+        - Event Category
   - name: Events Table
     id: events_table
     task: draw_table
@@ -874,7 +849,7 @@ workflow:
     task: persist_text
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: "v2"
+      filename_suffix: v2
     mapvalues:
       argnames: text
       argvalues: ${{ workflow.events_table.return }}
@@ -887,15 +862,15 @@ workflow:
     partial:
       title: ${{ workflow.set_events_table_title.return }}
     map:
-      argnames: [view, data]
+      argnames:
+        - view
+        - data
       argvalues: ${{ workflow.table_html_urls.return }}
   - name: Merge Table Widget Views
     id: grouped_table_widget
     task: merge_widget_views
     partial:
       widgets: ${{ workflow.events_table_single_views.return }}
-
-  # dashboard
   - name: Create Dashboard with Map Widgets
     id: events_dashboard
     task: gather_dashboard
