@@ -33,24 +33,33 @@ get_events_from_combined_params = create_task_magicmock(  # 🧪
     anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
     func_name="get_events_from_combined_params",  # 🧪
 )  # 🧪
-from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_empty as default_if_string_is_empty,
-)
-from ecoscope_workflows_core.tasks.config import title_case_var as title_case_var
 from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_is_none as any_dependency_is_none,
-)
-from ecoscope_workflows_core.tasks.transformation import (
-    add_temporal_index as add_temporal_index,
-)
-from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
 from ecoscope_workflows_core.tasks.transformation import (
     convert_values_to_timezone as convert_values_to_timezone,
 )
 from ecoscope_workflows_core.tasks.transformation import (
     extract_value_from_json_column as extract_value_from_json_column,
 )
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    extract_spatial_grouper_feature_group_ids as extract_spatial_grouper_feature_group_ids,
+)
+
+get_spatial_features_group = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_spatial_features_group",  # 🧪
+)  # 🧪
+from ecoscope_workflows_core.tasks.config import (
+    default_if_string_is_empty as default_if_string_is_empty,
+)
+from ecoscope_workflows_core.tasks.config import title_case_var as title_case_var
+from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_none as any_dependency_is_none,
+)
+from ecoscope_workflows_core.tasks.skip import never as never
+from ecoscope_workflows_core.tasks.transformation import (
+    add_temporal_index as add_temporal_index,
+)
+from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
 from ecoscope_workflows_core.tasks.transformation import (
     title_case_columns_by_prefix as title_case_columns_by_prefix,
 )
@@ -73,10 +82,16 @@ from ecoscope_workflows_ext_ecoscope.tasks.io import (
     get_event_type_from_event_details as get_event_type_from_event_details,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    add_spatial_index as add_spatial_index,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     apply_reloc_coord_filter as apply_reloc_coord_filter,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     normalize_json_column as normalize_json_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
 )
 
 get_choices_from_v2_event_type = create_task_magicmock(  # 🧪
@@ -112,7 +127,6 @@ from ecoscope_workflows_core.tasks.results import (
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
-from ecoscope_workflows_core.tasks.skip import never as never
 from ecoscope_workflows_core.tasks.transformation import (
     convert_column_values_to_numeric as convert_column_values_to_numeric,
 )
@@ -185,9 +199,13 @@ def main(params: Params):
         "extract_longitude": ["extract_latitude"],
         "extract_reported_by": ["extract_longitude"],
         "groupers": [],
+        "spatial_group_ids": ["groupers"],
+        "fetch_all_spatial_feature_groups": ["er_client_name", "spatial_group_ids"],
+        "resolved_groupers": ["groupers", "fetch_all_spatial_feature_groups"],
         "filter_events": ["extract_reported_by"],
         "normalize_event_details": ["filter_events"],
-        "events_add_temporal_index": ["normalize_event_details", "groupers"],
+        "events_add_temporal_index": ["normalize_event_details", "resolved_groupers"],
+        "events_add_spatial_index": ["events_add_temporal_index", "resolved_groupers"],
         "analysis_field_from_config": ["set_event_details_combined"],
         "analysis_field": ["analysis_field_from_config"],
         "analysis_field_label": ["set_event_details_combined"],
@@ -197,7 +215,7 @@ def main(params: Params):
         "category_field_label": ["set_event_details_combined"],
         "event_type": ["set_event_details_combined"],
         "add_default_category_column": [
-            "events_add_temporal_index",
+            "events_add_spatial_index",
             "analysis_field_unit",
         ],
         "default_category_field": ["category_field"],
@@ -232,7 +250,7 @@ def main(params: Params):
         "set_bar_chart_title": ["analysis_field_label", "by_category_field_str"],
         "set_density_map_title": ["analysis_field_label"],
         "set_events_table_title": [],
-        "split_event_groups": ["events_colormap", "groupers"],
+        "split_event_groups": ["events_colormap", "resolved_groupers"],
         "drop_nan_values": ["analysis_field", "split_event_groups"],
         "base_map_defs": [],
         "total_events": ["split_event_groups"],
@@ -292,7 +310,7 @@ def main(params: Params):
         "events_bar_chart_html_url": ["events_bar_chart"],
         "events_bar_chart_widget": ["set_bar_chart_title", "events_bar_chart_html_url"],
         "grouped_bar_plot_widget_merge": ["events_bar_chart_widget"],
-        "events_meshgrid": ["events_add_temporal_index"],
+        "events_meshgrid": ["events_add_spatial_index"],
         "grouped_events_feature_density": [
             "events_meshgrid",
             "analysis_field",
@@ -334,7 +352,7 @@ def main(params: Params):
             "grouped_bar_plot_widget_merge",
             "grouped_fd_map_widget_merge",
             "grouped_table_widget",
-            "groupers",
+            "resolved_groupers",
             "time_range",
         ],
     }
@@ -579,6 +597,67 @@ def main(params: Params):
             partial=(params_dict.get("groupers") or {}),
             method="call",
         ),
+        "spatial_group_ids": Node(
+            async_task=extract_spatial_grouper_feature_group_ids.validate()
+            .set_task_instance_id("spatial_group_ids")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "groupers": DependsOn("groupers"),
+            }
+            | (params_dict.get("spatial_group_ids") or {}),
+            method="call",
+        ),
+        "fetch_all_spatial_feature_groups": Node(
+            async_task=get_spatial_features_group.validate()
+            .set_task_instance_id("fetch_all_spatial_feature_groups")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "client": DependsOn("er_client_name"),
+            }
+            | (params_dict.get("fetch_all_spatial_feature_groups") or {}),
+            method="map",
+            kwargs={
+                "argnames": ["spatial_features_group_id"],
+                "argvalues": DependsOn("spatial_group_ids"),
+            },
+        ),
+        "resolved_groupers": Node(
+            async_task=resolve_spatial_feature_groups_for_spatial_groupers.validate()
+            .set_task_instance_id("resolved_groupers")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    never,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "groupers": DependsOn("groupers"),
+                "spatial_feature_groups": DependsOn("fetch_all_spatial_feature_groups"),
+            }
+            | (params_dict.get("resolved_groupers") or {}),
+            method="call",
+        ),
         "filter_events": Node(
             async_task=apply_reloc_coord_filter.validate()
             .set_task_instance_id("filter_events")
@@ -639,11 +718,31 @@ def main(params: Params):
             partial={
                 "df": DependsOn("normalize_event_details"),
                 "time_col": "time",
-                "groupers": DependsOn("groupers"),
+                "groupers": DependsOn("resolved_groupers"),
                 "cast_to_datetime": True,
                 "format": "mixed",
             }
             | (params_dict.get("events_add_temporal_index") or {}),
+            method="call",
+        ),
+        "events_add_spatial_index": Node(
+            async_task=add_spatial_index.validate()
+            .set_task_instance_id("events_add_spatial_index")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "gdf": DependsOn("events_add_temporal_index"),
+                "groupers": DependsOn("resolved_groupers"),
+            }
+            | (params_dict.get("events_add_spatial_index") or {}),
             method="call",
         ),
         "analysis_field_from_config": Node(
@@ -810,7 +909,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("events_add_temporal_index"),
+                "df": DependsOn("events_add_spatial_index"),
                 "column_name": "default_category",
                 "value": DependsOn("analysis_field_unit"),
                 "noop_if_column_exists": False,
@@ -1310,7 +1409,7 @@ def main(params: Params):
             .set_executor("lithops"),
             partial={
                 "df": DependsOn("events_colormap"),
-                "groupers": DependsOn("groupers"),
+                "groupers": DependsOn("resolved_groupers"),
             }
             | (params_dict.get("split_event_groups") or {}),
             method="call",
@@ -2004,7 +2103,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "aoi": DependsOn("events_add_temporal_index"),
+                "aoi": DependsOn("events_add_spatial_index"),
                 "intersecting_only": False,
             }
             | (params_dict.get("events_meshgrid") or {}),
@@ -2456,7 +2555,7 @@ def main(params: Params):
                     DependsOn("grouped_fd_map_widget_merge"),
                     DependsOn("grouped_table_widget"),
                 ],
-                "groupers": DependsOn("groupers"),
+                "groupers": DependsOn("resolved_groupers"),
                 "time_range": DependsOn("time_range"),
             }
             | (params_dict.get("events_dashboard") or {}),
