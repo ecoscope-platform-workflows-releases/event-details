@@ -1,10 +1,10 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.22.1
+    version: 0.22.3
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.22.1
+    version: 0.22.3
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
@@ -15,7 +15,7 @@ rjsf-overrides:
   $defs:
     ValueGrouper.oneOf:
       - const: Event Category
-        title: Event Category
+        title: Event Type Category
       - const: Reported By
         title: Reported By Name
   uiSchema:
@@ -78,10 +78,51 @@ workflow:
       include_updates: false
       include_related_events: false
       include_display_values: false
+  - id: analysis_field
+    task: get_analysis_field_from_event_details
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: analysis_field_label
+    task: get_analysis_field_label_from_event_details
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: analysis_field_unit
+    task: get_analysis_field_unit_from_event_details
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: category_field
+    task: get_category_field_from_event_details
+    skipif:
+      conditions:
+        - any_dependency_is_none
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: category_field_label
+    task: get_category_field_label_from_event_details
+    skipif:
+      conditions:
+        - any_dependency_is_none
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: event_type
+    task: get_event_type_from_event_details
+    partial:
+      combined_params: ${{ workflow.set_event_details_combined.return }}
   - id: get_events_data
     task: get_events_from_combined_params
     partial:
       combined_params: ${{ workflow.set_event_details_combined.return }}
+  - id: get_event_schema_display_names
+    task: get_fields_from_event_type_schema
+    partial:
+      client: ${{ workflow.er_client_name.return }}
+      event_type: ${{ workflow.event_type.return }}
+  - id: get_category_display_names
+    task: get_choices_from_v2_event_type
+    partial:
+      client: ${{ workflow.er_client_name.return }}
+      event_type: ${{ workflow.event_type.return }}
+      choice_field: ${{ workflow.category_field.return }}
   - name: Convert to timezone
     id: convert_to_user_timezone
     task: convert_values_to_timezone
@@ -158,11 +199,16 @@ workflow:
       column: event_details
       skip_if_not_exists: false
       sort_columns: false
+  - id: strip_event_details_prefix
+    task: strip_prefix_from_column_names
+    partial:
+      prefix: event_details__
+      df: ${{ workflow.normalize_event_details.return }}
   - name: Add temporal index to Events
     id: events_add_temporal_index
     task: add_temporal_index
     partial:
-      df: ${{ workflow.normalize_event_details.return }}
+      df: ${{ workflow.strip_event_details_prefix.return }}
       time_col: time
       groupers: ${{ workflow.resolved_groupers.return }}
       cast_to_datetime: true
@@ -173,44 +219,6 @@ workflow:
     partial:
       gdf: ${{ workflow.events_add_temporal_index.return }}
       groupers: ${{ workflow.resolved_groupers.return }}
-  - id: analysis_field_from_config
-    task: get_analysis_field_from_event_details
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: analysis_field
-    task: title_case_var
-    partial:
-      var: ${{ workflow.analysis_field_from_config.return }}
-  - id: analysis_field_label
-    task: get_analysis_field_label_from_event_details
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: analysis_field_unit
-    task: get_analysis_field_unit_from_event_details
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: category_field_from_config
-    task: get_category_field_from_event_details
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: category_field
-    task: title_case_var
-    skipif:
-      conditions:
-        - any_dependency_is_none
-    partial:
-      var: ${{ workflow.category_field_from_config.return }}
-  - id: category_field_label
-    task: get_category_field_label_from_event_details
-    skipif:
-      conditions:
-        - any_dependency_is_none
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
-  - id: event_type
-    task: get_event_type_from_event_details
-    partial:
-      combined_params: ${{ workflow.set_event_details_combined.return }}
   - id: add_default_category_column
     task: assign_value
     partial:
@@ -233,21 +241,10 @@ workflow:
     partial:
       value: ${{ workflow.category_field_label_or_category.return }}
       default: ${{ workflow.category_field.return }}
-  - id: title_case_columns
-    task: title_case_columns_by_prefix
-    partial:
-      df: ${{ workflow.add_default_category_column.return }}
-      prefix: event_details__
-  - id: get_category_display_names
-    task: get_choices_from_v2_event_type
-    partial:
-      client: ${{ workflow.er_client_name.return }}
-      event_type: ${{ workflow.event_type.return }}
-      choice_field: ${{ workflow.category_field_from_config.return }}
   - id: ensure_analysis_column
     task: assign_value
     partial:
-      df: ${{ workflow.title_case_columns.return }}
+      df: ${{ workflow.add_default_category_column.return }}
       column_name: ${{ workflow.analysis_field.return }}
       value: null
       noop_if_column_exists: true
@@ -258,6 +255,18 @@ workflow:
       column_name: ${{ workflow.default_category_field.return }}
       value: None
       noop_if_column_exists: true
+  - id: analysis_field_display_name
+    task: lookup_string_var
+    partial:
+      var: ${{ workflow.analysis_field.return }}
+      value_map: ${{ workflow.get_event_schema_display_names.return }}
+      raise_if_not_found: true
+  - id: category_field_display_name
+    task: lookup_string_var
+    partial:
+      var: ${{ workflow.default_category_field.return }}
+      value_map: ${{ workflow.get_event_schema_display_names.return }}
+      raise_if_not_found: false
   - id: map_display_names
     task: map_values
     partial:
@@ -281,7 +290,7 @@ workflow:
       drop_columns:
         - reported_by
         - location
-        - Updates
+        - updates
       retain_columns: []
       rename_columns:
         serial_number: Serial Number
@@ -290,6 +299,7 @@ workflow:
         latitude: Latitude
         longitude: Longitude
         event_category: Event Category
+      raise_if_not_found: true
   - name: Reorder columns for display
     id: column_display_order
     task: reorder_columns
@@ -301,6 +311,25 @@ workflow:
         - Reported By
         - Latitude
         - Longitude
+  - id: events_table_columns
+    task: get_column_names_from_dataframe
+    partial:
+      df: ${{ workflow.column_display_order.return }}
+      exclude_column_names:
+        - id
+        - geometry
+        - events_colormap
+        - event_type
+        - default_category
+        - Event Category
+  - id: events_table_display_columns
+    task: lookup_string_var
+    partial:
+      value_map: ${{ workflow.get_event_schema_display_names.return }}
+      raise_if_not_found: false
+    map:
+      argnames: var
+      argvalues: ${{ workflow.events_table_columns.return }}
   - name: Ensure Numeric Analysis Field
     id: ensure_numeric
     task: convert_column_values_to_numeric
@@ -396,13 +425,23 @@ workflow:
     partial:
       df: ${{ workflow.events_colormap.return }}
       groupers: ${{ workflow.resolved_groupers.return }}
-  - id: drop_nan_values
-    task: drop_nan_values_by_column
+  - id: display_table
+    task: map_columns
     partial:
-      column_name: ${{ workflow.analysis_field.return }}
+      drop_columns: []
+      retain_columns: []
+      rename_columns: ${{ workflow.get_event_schema_display_names.return }}
+      raise_if_not_found: false
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.split_event_groups.return }}
+  - id: drop_nan_values
+    task: drop_nan_values_by_column
+    partial:
+      column_name: ${{ workflow.analysis_field_display_name.return }}
+    mapvalues:
+      argnames: df
+      argvalues: ${{ workflow.display_table.return }}
   - name: Map Base Layers
     id: base_map_defs
     task: set_base_maps
@@ -411,7 +450,7 @@ workflow:
     task: dataframe_count
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.split_event_groups.return }}
+      argvalues: ${{ workflow.display_table.return }}
   - name: Create Events Single Value Widget
     id: total_events_sv_widget
     task: create_single_value_widget_single_view
@@ -438,19 +477,19 @@ workflow:
       summary_params:
         - display_name: Sum
           aggregator: sum
-          column: ${{ workflow.analysis_field.return }}
+          column: ${{ workflow.analysis_field_display_name.return }}
         - display_name: Min
           aggregator: min
-          column: ${{ workflow.analysis_field.return }}
+          column: ${{ workflow.analysis_field_display_name.return }}
         - display_name: Max
           aggregator: max
-          column: ${{ workflow.analysis_field.return }}
+          column: ${{ workflow.analysis_field_display_name.return }}
         - display_name: Median
           aggregator: median
-          column: ${{ workflow.analysis_field.return }}
+          column: ${{ workflow.analysis_field_display_name.return }}
         - display_name: Mean
           aggregator: mean
-          column: ${{ workflow.analysis_field.return }}
+          column: ${{ workflow.analysis_field_display_name.return }}
       groupby_cols: null
       reset_index: false
     mapvalues:
@@ -472,6 +511,7 @@ workflow:
       retain_columns: []
       rename_columns:
         "0": Summary Values
+      raise_if_not_found: true
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.transpose_table.return }}
@@ -522,11 +562,11 @@ workflow:
     id: grouped_events_pie_chart
     task: draw_pie_chart
     partial:
-      value_column: ${{ workflow.analysis_field.return }}
+      value_column: ${{ workflow.analysis_field_display_name.return }}
       color_column: events_colormap
       plot_style:
         textinfo: value
-      label_column: ${{ workflow.default_category_field.return }}
+      label_column: ${{ workflow.category_field_display_name.return }}
       layout_style: null
       widget_id: ${{ workflow.set_pie_chart_title.return }}
     mapvalues:
@@ -563,11 +603,11 @@ workflow:
     id: normalize_analysis_field
     task: normalize_numeric_column
     partial:
-      column: ${{ workflow.analysis_field.return }}
+      column: ${{ workflow.analysis_field_display_name.return }}
       output_column_name: normalized_analysis_field
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.split_event_groups.return }}
+      argvalues: ${{ workflow.display_table.return }}
   - id: drop_empty_geometry
     task: drop_null_geometry
     mapvalues:
@@ -589,13 +629,13 @@ workflow:
         get_line_color: '#FFFFFF'
         radius_scale: 5
       legend:
-        label_column: ${{ workflow.default_category_field.return }}
+        label_column: ${{ workflow.category_field_display_name.return }}
         color_column: events_colormap
       tooltip_columns:
         - Serial Number
         - Event Time
         - Reported By
-        - ${{ workflow.analysis_field.return }}
+        - ${{ workflow.analysis_field_display_name.return }}
     mapvalues:
       argnames: geodataframe
       argvalues: ${{ workflow.drop_empty_geometry.return }}
@@ -653,8 +693,8 @@ workflow:
         task: draw_time_series_bar_chart
         partial:
           x_axis: Event Time
-          y_axis: ${{ workflow.analysis_field.return }}
-          category: ${{ workflow.default_category_field.return }}
+          y_axis: ${{ workflow.analysis_field_display_name.return }}
+          category: ${{ workflow.category_field_display_name.return }}
           agg_function: sum
           color_column: events_colormap
           plot_style:
@@ -712,10 +752,10 @@ workflow:
         partial:
           meshgrid: ${{ workflow.events_meshgrid.return }}
           geometry_type: point
-          sum_column: ${{ workflow.analysis_field.return }}
+          sum_column: ${{ workflow.analysis_field_display_name.return }}
         mapvalues:
           argnames: geodataframe
-          argvalues: ${{ workflow.split_event_groups.return }}
+          argvalues: ${{ workflow.display_table.return }}
       - name: Drop nan percentiles for map display
         id: drop_nan_percentiles
         task: drop_nan_values_by_column
@@ -776,6 +816,7 @@ workflow:
           retain_columns: []
           rename_columns:
             density: Density
+          raise_if_not_found: true
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.grouped_fd_colormap.return }}
@@ -845,22 +886,11 @@ workflow:
         task: merge_widget_views
         partial:
           widgets: ${{ workflow.grouped_fd_map_widget.return }}
-  - id: events_table_columns
-    task: get_column_names_from_dataframe
-    partial:
-      df: ${{ workflow.column_display_order.return }}
-      exclude_column_names:
-        - id
-        - geometry
-        - events_colormap
-        - event_type
-        - default_category
-        - Event Category
   - name: Events Table
     id: events_table
     task: draw_table
     partial:
-      columns: ${{ workflow.events_table_columns.return }}
+      columns: ${{ workflow.events_table_display_columns.return }}
       table_config:
         enable_sorting: true
         enable_filtering: false
@@ -869,7 +899,7 @@ workflow:
       widget_id: ${{ workflow.set_events_table_title.return }}
     mapvalues:
       argnames: dataframe
-      argvalues: ${{ workflow.split_event_groups.return }}
+      argvalues: ${{ workflow.display_table.return }}
   - name: Persist Events Table as Text
     id: table_html_urls
     task: persist_text

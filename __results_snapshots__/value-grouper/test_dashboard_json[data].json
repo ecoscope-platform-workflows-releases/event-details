@@ -19,19 +19,23 @@
             "title": "Event Category",
             "type": "string"
           },
-          "Reported By": {
-            "default": "eco_1",
+          "herd_type": {
+            "default": "Bull Only",
             "oneOf": [
               {
-                "const": "eco_1",
-                "title": "eco_1"
+                "const": "Bull Only",
+                "title": "Bull Only"
               },
               {
-                "const": "eco_2",
-                "title": "eco_2"
+                "const": "Female Only",
+                "title": "Female Only"
+              },
+              {
+                "const": "Mix",
+                "title": "Mix"
               }
             ],
-            "title": "Reported By",
+            "title": "Herd Type",
             "type": "string"
           }
         },
@@ -41,8 +45,8 @@
             "ui:title": "Event Category",
             "ui:widget": "select"
           },
-          "Reported By": {
-            "ui:title": "Reported By",
+          "herd_type": {
+            "ui:title": "Herd Type",
             "ui:widget": "select"
           }
         }
@@ -56,7 +60,7 @@
       "title": "Event Details Dashboard"
     },
     "views": {
-      "{\"Event Category\": \"standard_reporting\", \"Reported By\": \"eco_2\"}": [
+      "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Bull Only\"}": [
         {
           "data": "str",
           "id": 0,
@@ -107,7 +111,211 @@
           "widget_type": "table"
         }
       ],
-      "{\"Event Category\": \"testing\", \"Reported By\": \"eco_1\"}": [
+      "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Female Only\"}": [
+        {
+          "data": "str",
+          "id": 0,
+          "is_filtered": true,
+          "title": "Event Count",
+          "widget_type": "stat"
+        },
+        {
+          "data": "str",
+          "id": 1,
+          "is_filtered": true,
+          "title": "Herd Size",
+          "widget_type": "table"
+        },
+        {
+          "data": "str",
+          "id": 2,
+          "is_filtered": true,
+          "title": "Proportion of Herd Size by Herd Type",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 3,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Locations",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 4,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Over Time",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 5,
+          "is_filtered": true,
+          "title": "Herd Size Sum",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 6,
+          "is_filtered": true,
+          "title": "Events Table",
+          "widget_type": "table"
+        }
+      ],
+      "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Mix\"}": [
+        {
+          "data": "str",
+          "id": 0,
+          "is_filtered": true,
+          "title": "Event Count",
+          "widget_type": "stat"
+        },
+        {
+          "data": "str",
+          "id": 1,
+          "is_filtered": true,
+          "title": "Herd Size",
+          "widget_type": "table"
+        },
+        {
+          "data": "str",
+          "id": 2,
+          "is_filtered": true,
+          "title": "Proportion of Herd Size by Herd Type",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 3,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Locations",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 4,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Over Time",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 5,
+          "is_filtered": true,
+          "title": "Herd Size Sum",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 6,
+          "is_filtered": true,
+          "title": "Events Table",
+          "widget_type": "table"
+        }
+      ],
+      "{\"Event Category\": \"testing\", \"herd_type\": \"Bull Only\"}": [
+        {
+          "data": "str",
+          "id": 0,
+          "is_filtered": true,
+          "title": "Event Count",
+          "widget_type": "stat"
+        },
+        {
+          "data": "str",
+          "id": 1,
+          "is_filtered": true,
+          "title": "Herd Size",
+          "widget_type": "table"
+        },
+        {
+          "data": "str",
+          "id": 2,
+          "is_filtered": true,
+          "title": "Proportion of Herd Size by Herd Type",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 3,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Locations",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 4,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Over Time",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 5,
+          "is_filtered": true,
+          "title": "Herd Size Sum",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 6,
+          "is_filtered": true,
+          "title": "Events Table",
+          "widget_type": "table"
+        }
+      ],
+      "{\"Event Category\": \"testing\", \"herd_type\": \"Female Only\"}": [
+        {
+          "data": "str",
+          "id": 0,
+          "is_filtered": true,
+          "title": "Event Count",
+          "widget_type": "stat"
+        },
+        {
+          "data": "str",
+          "id": 1,
+          "is_filtered": true,
+          "title": "Herd Size",
+          "widget_type": "table"
+        },
+        {
+          "data": "str",
+          "id": 2,
+          "is_filtered": true,
+          "title": "Proportion of Herd Size by Herd Type",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 3,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Locations",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 4,
+          "is_filtered": true,
+          "title": "Herd Size by Herd Type Over Time",
+          "widget_type": "graph"
+        },
+        {
+          "data": "str",
+          "id": 5,
+          "is_filtered": true,
+          "title": "Herd Size Sum",
+          "widget_type": "map"
+        },
+        {
+          "data": "str",
+          "id": 6,
+          "is_filtered": true,
+          "title": "Events Table",
+          "widget_type": "table"
+        }
+      ],
+      "{\"Event Category\": \"testing\", \"herd_type\": \"Mix\"}": [
         {
           "data": "str",
           "id": 0,

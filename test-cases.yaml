@@ -112,7 +112,7 @@ value-grouper:
     groupers:
       groupers:
         - "Event Category"
-        - "Reported By"
+        - "herd_type"
     time_range:
       since: "2015-01-01T00:00:00"
       until: "2015-12-31T23:59:59"

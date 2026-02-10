@@ -544,7 +544,7 @@
       "oneOf": [
         {
           "const": "Event Category",
-          "title": "Event Category"
+          "title": "Event Type Category"
         },
         {
           "const": "Reported By",
