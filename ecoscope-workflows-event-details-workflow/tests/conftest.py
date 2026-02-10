@@ -40,8 +40,9 @@ TEST_CASES_YAML = ARTIFACTS.parent / "test-cases.yaml"
 MATCHSPEC_OVERRIDE = "ecoscope-workflows-event-details-workflow"
 IO_TASKS_IMPORTABLE_REFERENCES = [
     "ecoscope_workflows_ext_ecoscope.tasks.io.get_events_from_combined_params",
-    "ecoscope_workflows_ext_ecoscope.tasks.io.get_spatial_features_group",
+    "ecoscope_workflows_ext_ecoscope.tasks.io.get_fields_from_event_type_schema",
     "ecoscope_workflows_ext_ecoscope.tasks.io.get_choices_from_v2_event_type",
+    "ecoscope_workflows_ext_ecoscope.tasks.io.get_spatial_features_group",
 ]
 
 yaml = ruamel.yaml.YAML(typ="safe")

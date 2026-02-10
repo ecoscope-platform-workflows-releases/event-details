@@ -20,48 +20,13 @@ from ecoscope_workflows_core.tasks.filter import (
 from ecoscope_workflows_core.tasks.filter import set_time_range as set_time_range
 from ecoscope_workflows_core.tasks.io import set_er_connection as set_er_connection
 from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_none as any_dependency_is_none,
+)
+from ecoscope_workflows_core.tasks.skip import (
     any_dependency_skipped as any_dependency_skipped,
 )
 from ecoscope_workflows_core.tasks.skip import any_is_empty_df as any_is_empty_df
 from ecoscope_workflows_core.testing import create_task_magicmock  # 🧪
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
-    set_event_details_params as set_event_details_params,
-)
-
-get_events_from_combined_params = create_task_magicmock(  # 🧪
-    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
-    func_name="get_events_from_combined_params",  # 🧪
-)  # 🧪
-from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
-from ecoscope_workflows_core.tasks.transformation import (
-    convert_values_to_timezone as convert_values_to_timezone,
-)
-from ecoscope_workflows_core.tasks.transformation import (
-    extract_value_from_json_column as extract_value_from_json_column,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    extract_spatial_grouper_feature_group_ids as extract_spatial_grouper_feature_group_ids,
-)
-
-get_spatial_features_group = create_task_magicmock(  # 🧪
-    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
-    func_name="get_spatial_features_group",  # 🧪
-)  # 🧪
-from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_empty as default_if_string_is_empty,
-)
-from ecoscope_workflows_core.tasks.config import title_case_var as title_case_var
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_is_none as any_dependency_is_none,
-)
-from ecoscope_workflows_core.tasks.skip import never as never
-from ecoscope_workflows_core.tasks.transformation import (
-    add_temporal_index as add_temporal_index,
-)
-from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
-from ecoscope_workflows_core.tasks.transformation import (
-    title_case_columns_by_prefix as title_case_columns_by_prefix,
-)
 from ecoscope_workflows_ext_ecoscope.tasks.io import (
     get_analysis_field_from_event_details as get_analysis_field_from_event_details,
 )
@@ -80,26 +45,45 @@ from ecoscope_workflows_ext_ecoscope.tasks.io import (
 from ecoscope_workflows_ext_ecoscope.tasks.io import (
     get_event_type_from_event_details as get_event_type_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    add_spatial_index as add_spatial_index,
+from ecoscope_workflows_ext_ecoscope.tasks.io import (
+    set_event_details_params as set_event_details_params,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    apply_reloc_coord_filter as apply_reloc_coord_filter,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    normalize_json_column as normalize_json_column,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
-)
+
+get_events_from_combined_params = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_events_from_combined_params",  # 🧪
+)  # 🧪
+
+get_fields_from_event_type_schema = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_fields_from_event_type_schema",  # 🧪
+)  # 🧪
 
 get_choices_from_v2_event_type = create_task_magicmock(  # 🧪
     anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
     func_name="get_choices_from_v2_event_type",  # 🧪
 )  # 🧪
+from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
+from ecoscope_workflows_core.tasks.transformation import (
+    convert_values_to_timezone as convert_values_to_timezone,
+)
+from ecoscope_workflows_core.tasks.transformation import (
+    extract_value_from_json_column as extract_value_from_json_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    extract_spatial_grouper_feature_group_ids as extract_spatial_grouper_feature_group_ids,
+)
+
+get_spatial_features_group = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_spatial_features_group",  # 🧪
+)  # 🧪
 from ecoscope_workflows_core.tasks.analysis import dataframe_count as dataframe_count
 from ecoscope_workflows_core.tasks.config import (
     concat_string_vars as concat_string_vars,
+)
+from ecoscope_workflows_core.tasks.config import (
+    default_if_string_is_empty as default_if_string_is_empty,
 )
 from ecoscope_workflows_core.tasks.config import (
     get_column_names_from_dataframe as get_column_names_from_dataframe,
@@ -126,16 +110,27 @@ from ecoscope_workflows_core.tasks.results import (
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
+from ecoscope_workflows_core.tasks.skip import never as never
+from ecoscope_workflows_core.tasks.transformation import (
+    add_temporal_index as add_temporal_index,
+)
+from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
 from ecoscope_workflows_core.tasks.transformation import (
     convert_column_values_to_numeric as convert_column_values_to_numeric,
 )
 from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
+from ecoscope_workflows_core.tasks.transformation import (
+    lookup_string_var as lookup_string_var,
+)
 from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
 from ecoscope_workflows_core.tasks.transformation import map_values as map_values
 from ecoscope_workflows_core.tasks.transformation import (
     reorder_columns as reorder_columns,
 )
 from ecoscope_workflows_core.tasks.transformation import sort_values as sort_values
+from ecoscope_workflows_core.tasks.transformation import (
+    strip_prefix_from_column_names as strip_prefix_from_column_names,
+)
 from ecoscope_workflows_core.tasks.transformation import transpose as transpose
 from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
     calculate_feature_density as calculate_feature_density,
@@ -163,10 +158,16 @@ from ecoscope_workflows_ext_ecoscope.tasks.skip import (
     all_geometry_are_none as all_geometry_are_none,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    add_spatial_index as add_spatial_index,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     apply_classification as apply_classification,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     apply_color_map as apply_color_map,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    apply_reloc_coord_filter as apply_reloc_coord_filter,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_nan_values_by_column as drop_nan_values_by_column,
@@ -175,7 +176,13 @@ from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_null_geometry as drop_null_geometry,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    normalize_json_column as normalize_json_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     normalize_numeric_column as normalize_numeric_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
 )
 
 from ..params import Params
@@ -288,6 +295,118 @@ def main(params: Params):
         .call()
     )
 
+    analysis_field = (
+        get_analysis_field_from_event_details.validate()
+        .set_task_instance_id("analysis_field")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("analysis_field") or {}),
+        )
+        .call()
+    )
+
+    analysis_field_label = (
+        get_analysis_field_label_from_event_details.validate()
+        .set_task_instance_id("analysis_field_label")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("analysis_field_label") or {}),
+        )
+        .call()
+    )
+
+    analysis_field_unit = (
+        get_analysis_field_unit_from_event_details.validate()
+        .set_task_instance_id("analysis_field_unit")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("analysis_field_unit") or {}),
+        )
+        .call()
+    )
+
+    category_field = (
+        get_category_field_from_event_details.validate()
+        .set_task_instance_id("category_field")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_dependency_is_none,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("category_field") or {}),
+        )
+        .call()
+    )
+
+    category_field_label = (
+        get_category_field_label_from_event_details.validate()
+        .set_task_instance_id("category_field_label")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_dependency_is_none,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("category_field_label") or {}),
+        )
+        .call()
+    )
+
+    event_type = (
+        get_event_type_from_event_details.validate()
+        .set_task_instance_id("event_type")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            combined_params=set_event_details_combined,
+            **(params_dict.get("event_type") or {}),
+        )
+        .call()
+    )
+
     get_events_data = (
         get_events_from_combined_params.validate()
         .set_task_instance_id("get_events_data")
@@ -303,6 +422,47 @@ def main(params: Params):
         .partial(
             combined_params=set_event_details_combined,
             **(params_dict.get("get_events_data") or {}),
+        )
+        .call()
+    )
+
+    get_event_schema_display_names = (
+        get_fields_from_event_type_schema.validate()
+        .set_task_instance_id("get_event_schema_display_names")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            client=er_client_name,
+            event_type=event_type,
+            **(params_dict.get("get_event_schema_display_names") or {}),
+        )
+        .call()
+    )
+
+    get_category_display_names = (
+        get_choices_from_v2_event_type.validate()
+        .set_task_instance_id("get_category_display_names")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            client=er_client_name,
+            event_type=event_type,
+            choice_field=category_field,
+            **(params_dict.get("get_category_display_names") or {}),
         )
         .call()
     )
@@ -511,6 +671,26 @@ def main(params: Params):
         .call()
     )
 
+    strip_event_details_prefix = (
+        strip_prefix_from_column_names.validate()
+        .set_task_instance_id("strip_event_details_prefix")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            prefix="event_details__",
+            df=normalize_event_details,
+            **(params_dict.get("strip_event_details_prefix") or {}),
+        )
+        .call()
+    )
+
     events_add_temporal_index = (
         add_temporal_index.validate()
         .set_task_instance_id("events_add_temporal_index")
@@ -524,7 +704,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=normalize_event_details,
+            df=strip_event_details_prefix,
             time_col="time",
             groupers=resolved_groupers,
             cast_to_datetime=True,
@@ -550,154 +730,6 @@ def main(params: Params):
             gdf=events_add_temporal_index,
             groupers=resolved_groupers,
             **(params_dict.get("events_add_spatial_index") or {}),
-        )
-        .call()
-    )
-
-    analysis_field_from_config = (
-        get_analysis_field_from_event_details.validate()
-        .set_task_instance_id("analysis_field_from_config")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field_from_config") or {}),
-        )
-        .call()
-    )
-
-    analysis_field = (
-        title_case_var.validate()
-        .set_task_instance_id("analysis_field")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            var=analysis_field_from_config, **(params_dict.get("analysis_field") or {})
-        )
-        .call()
-    )
-
-    analysis_field_label = (
-        get_analysis_field_label_from_event_details.validate()
-        .set_task_instance_id("analysis_field_label")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field_label") or {}),
-        )
-        .call()
-    )
-
-    analysis_field_unit = (
-        get_analysis_field_unit_from_event_details.validate()
-        .set_task_instance_id("analysis_field_unit")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field_unit") or {}),
-        )
-        .call()
-    )
-
-    category_field_from_config = (
-        get_category_field_from_event_details.validate()
-        .set_task_instance_id("category_field_from_config")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("category_field_from_config") or {}),
-        )
-        .call()
-    )
-
-    category_field = (
-        title_case_var.validate()
-        .set_task_instance_id("category_field")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_dependency_is_none,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            var=category_field_from_config, **(params_dict.get("category_field") or {})
-        )
-        .call()
-    )
-
-    category_field_label = (
-        get_category_field_label_from_event_details.validate()
-        .set_task_instance_id("category_field_label")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_dependency_is_none,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("category_field_label") or {}),
-        )
-        .call()
-    )
-
-    event_type = (
-        get_event_type_from_event_details.validate()
-        .set_task_instance_id("event_type")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            combined_params=set_event_details_combined,
-            **(params_dict.get("event_type") or {}),
         )
         .call()
     )
@@ -784,47 +816,6 @@ def main(params: Params):
         .call()
     )
 
-    title_case_columns = (
-        title_case_columns_by_prefix.validate()
-        .set_task_instance_id("title_case_columns")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            df=add_default_category_column,
-            prefix="event_details__",
-            **(params_dict.get("title_case_columns") or {}),
-        )
-        .call()
-    )
-
-    get_category_display_names = (
-        get_choices_from_v2_event_type.validate()
-        .set_task_instance_id("get_category_display_names")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            client=er_client_name,
-            event_type=event_type,
-            choice_field=category_field_from_config,
-            **(params_dict.get("get_category_display_names") or {}),
-        )
-        .call()
-    )
-
     ensure_analysis_column = (
         assign_value.validate()
         .set_task_instance_id("ensure_analysis_column")
@@ -838,7 +829,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=title_case_columns,
+            df=add_default_category_column,
             column_name=analysis_field,
             value=None,
             noop_if_column_exists=True,
@@ -865,6 +856,48 @@ def main(params: Params):
             value="None",
             noop_if_column_exists=True,
             **(params_dict.get("ensure_category_column") or {}),
+        )
+        .call()
+    )
+
+    analysis_field_display_name = (
+        lookup_string_var.validate()
+        .set_task_instance_id("analysis_field_display_name")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            var=analysis_field,
+            value_map=get_event_schema_display_names,
+            raise_if_not_found=True,
+            **(params_dict.get("analysis_field_display_name") or {}),
+        )
+        .call()
+    )
+
+    category_field_display_name = (
+        lookup_string_var.validate()
+        .set_task_instance_id("category_field_display_name")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            var=default_category_field,
+            value_map=get_event_schema_display_names,
+            raise_if_not_found=False,
+            **(params_dict.get("category_field_display_name") or {}),
         )
         .call()
     )
@@ -927,7 +960,7 @@ def main(params: Params):
         )
         .partial(
             df=convert_na_values,
-            drop_columns=["reported_by", "location", "Updates"],
+            drop_columns=["reported_by", "location", "updates"],
             retain_columns=[],
             rename_columns={
                 "serial_number": "Serial Number",
@@ -937,6 +970,7 @@ def main(params: Params):
                 "longitude": "Longitude",
                 "event_category": "Event Category",
             },
+            raise_if_not_found=True,
             **(params_dict.get("rename_columns") or {}),
         )
         .call()
@@ -966,6 +1000,53 @@ def main(params: Params):
             **(params_dict.get("column_display_order") or {}),
         )
         .call()
+    )
+
+    events_table_columns = (
+        get_column_names_from_dataframe.validate()
+        .set_task_instance_id("events_table_columns")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=column_display_order,
+            exclude_column_names=[
+                "id",
+                "geometry",
+                "events_colormap",
+                "event_type",
+                "default_category",
+                "Event Category",
+            ],
+            **(params_dict.get("events_table_columns") or {}),
+        )
+        .call()
+    )
+
+    events_table_display_columns = (
+        lookup_string_var.validate()
+        .set_task_instance_id("events_table_display_columns")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            value_map=get_event_schema_display_names,
+            raise_if_not_found=False,
+            **(params_dict.get("events_table_display_columns") or {}),
+        )
+        .map(argnames=["var"], argvalues=events_table_columns)
     )
 
     ensure_numeric = (
@@ -1193,6 +1274,28 @@ def main(params: Params):
         .call()
     )
 
+    display_table = (
+        map_columns.validate()
+        .set_task_instance_id("display_table")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            drop_columns=[],
+            retain_columns=[],
+            rename_columns=get_event_schema_display_names,
+            raise_if_not_found=False,
+            **(params_dict.get("display_table") or {}),
+        )
+        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+    )
+
     drop_nan_values = (
         drop_nan_values_by_column.validate()
         .set_task_instance_id("drop_nan_values")
@@ -1206,9 +1309,10 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            column_name=analysis_field, **(params_dict.get("drop_nan_values") or {})
+            column_name=analysis_field_display_name,
+            **(params_dict.get("drop_nan_values") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+        .mapvalues(argnames=["df"], argvalues=display_table)
     )
 
     base_map_defs = (
@@ -1240,7 +1344,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(**(params_dict.get("total_events") or {}))
-        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+        .mapvalues(argnames=["df"], argvalues=display_table)
     )
 
     total_events_sv_widget = (
@@ -1295,18 +1399,30 @@ def main(params: Params):
         )
         .partial(
             summary_params=[
-                {"display_name": "Sum", "aggregator": "sum", "column": analysis_field},
-                {"display_name": "Min", "aggregator": "min", "column": analysis_field},
-                {"display_name": "Max", "aggregator": "max", "column": analysis_field},
+                {
+                    "display_name": "Sum",
+                    "aggregator": "sum",
+                    "column": analysis_field_display_name,
+                },
+                {
+                    "display_name": "Min",
+                    "aggregator": "min",
+                    "column": analysis_field_display_name,
+                },
+                {
+                    "display_name": "Max",
+                    "aggregator": "max",
+                    "column": analysis_field_display_name,
+                },
                 {
                     "display_name": "Median",
                     "aggregator": "median",
-                    "column": analysis_field,
+                    "column": analysis_field_display_name,
                 },
                 {
                     "display_name": "Mean",
                     "aggregator": "mean",
-                    "column": analysis_field,
+                    "column": analysis_field_display_name,
                 },
             ],
             groupby_cols=None,
@@ -1351,6 +1467,7 @@ def main(params: Params):
             drop_columns=[],
             retain_columns=[],
             rename_columns={"0": "Summary Values"},
+            raise_if_not_found=True,
             **(params_dict.get("rename_summary_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=transpose_table)
@@ -1452,10 +1569,10 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            value_column=analysis_field,
+            value_column=analysis_field_display_name,
             color_column="events_colormap",
             plot_style={"textinfo": "value"},
-            label_column=default_category_field,
+            label_column=category_field_display_name,
             layout_style=None,
             widget_id=set_pie_chart_title,
             **(params_dict.get("grouped_events_pie_chart") or {}),
@@ -1533,11 +1650,11 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            column=analysis_field,
+            column=analysis_field_display_name,
             output_column_name="normalized_analysis_field",
             **(params_dict.get("normalize_analysis_field") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=split_event_groups)
+        .mapvalues(argnames=["df"], argvalues=display_table)
     )
 
     drop_empty_geometry = (
@@ -1578,14 +1695,14 @@ def main(params: Params):
                 "radius_scale": 5,
             },
             legend={
-                "label_column": default_category_field,
+                "label_column": category_field_display_name,
                 "color_column": "events_colormap",
             },
             tooltip_columns=[
                 "Serial Number",
                 "Event Time",
                 "Reported By",
-                analysis_field,
+                analysis_field_display_name,
             ],
             **(params_dict.get("grouped_events_map_layer") or {}),
         )
@@ -1692,8 +1809,8 @@ def main(params: Params):
         )
         .partial(
             x_axis="Event Time",
-            y_axis=analysis_field,
-            category=default_category_field,
+            y_axis=analysis_field_display_name,
+            category=category_field_display_name,
             agg_function="sum",
             color_column="events_colormap",
             plot_style={"xperiodalignment": "middle"},
@@ -1797,10 +1914,10 @@ def main(params: Params):
         .partial(
             meshgrid=events_meshgrid,
             geometry_type="point",
-            sum_column=analysis_field,
+            sum_column=analysis_field_display_name,
             **(params_dict.get("grouped_events_feature_density") or {}),
         )
-        .mapvalues(argnames=["geodataframe"], argvalues=split_event_groups)
+        .mapvalues(argnames=["geodataframe"], argvalues=display_table)
     )
 
     drop_nan_percentiles = (
@@ -1911,6 +2028,7 @@ def main(params: Params):
             drop_columns=[],
             retain_columns=[],
             rename_columns={"density": "Density"},
+            raise_if_not_found=True,
             **(params_dict.get("fd_rename_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=grouped_fd_colormap)
@@ -2028,33 +2146,6 @@ def main(params: Params):
         .call()
     )
 
-    events_table_columns = (
-        get_column_names_from_dataframe.validate()
-        .set_task_instance_id("events_table_columns")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            df=column_display_order,
-            exclude_column_names=[
-                "id",
-                "geometry",
-                "events_colormap",
-                "event_type",
-                "default_category",
-                "Event Category",
-            ],
-            **(params_dict.get("events_table_columns") or {}),
-        )
-        .call()
-    )
-
     events_table = (
         draw_table.validate()
         .set_task_instance_id("events_table")
@@ -2068,7 +2159,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            columns=events_table_columns,
+            columns=events_table_display_columns,
             table_config={
                 "enable_sorting": True,
                 "enable_filtering": False,
@@ -2078,7 +2169,7 @@ def main(params: Params):
             widget_id=set_events_table_title,
             **(params_dict.get("events_table") or {}),
         )
-        .mapvalues(argnames=["dataframe"], argvalues=split_event_groups)
+        .mapvalues(argnames=["dataframe"], argvalues=display_table)
     )
 
     table_html_urls = (

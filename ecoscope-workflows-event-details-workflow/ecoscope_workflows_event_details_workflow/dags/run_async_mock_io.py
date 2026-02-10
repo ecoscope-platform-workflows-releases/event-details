@@ -21,48 +21,13 @@ from ecoscope_workflows_core.tasks.filter import (
 from ecoscope_workflows_core.tasks.filter import set_time_range as set_time_range
 from ecoscope_workflows_core.tasks.io import set_er_connection as set_er_connection
 from ecoscope_workflows_core.tasks.skip import (
+    any_dependency_is_none as any_dependency_is_none,
+)
+from ecoscope_workflows_core.tasks.skip import (
     any_dependency_skipped as any_dependency_skipped,
 )
 from ecoscope_workflows_core.tasks.skip import any_is_empty_df as any_is_empty_df
 from ecoscope_workflows_core.testing import create_task_magicmock  # 🧪
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
-    set_event_details_params as set_event_details_params,
-)
-
-get_events_from_combined_params = create_task_magicmock(  # 🧪
-    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
-    func_name="get_events_from_combined_params",  # 🧪
-)  # 🧪
-from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
-from ecoscope_workflows_core.tasks.transformation import (
-    convert_values_to_timezone as convert_values_to_timezone,
-)
-from ecoscope_workflows_core.tasks.transformation import (
-    extract_value_from_json_column as extract_value_from_json_column,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    extract_spatial_grouper_feature_group_ids as extract_spatial_grouper_feature_group_ids,
-)
-
-get_spatial_features_group = create_task_magicmock(  # 🧪
-    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
-    func_name="get_spatial_features_group",  # 🧪
-)  # 🧪
-from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_empty as default_if_string_is_empty,
-)
-from ecoscope_workflows_core.tasks.config import title_case_var as title_case_var
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_is_none as any_dependency_is_none,
-)
-from ecoscope_workflows_core.tasks.skip import never as never
-from ecoscope_workflows_core.tasks.transformation import (
-    add_temporal_index as add_temporal_index,
-)
-from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
-from ecoscope_workflows_core.tasks.transformation import (
-    title_case_columns_by_prefix as title_case_columns_by_prefix,
-)
 from ecoscope_workflows_ext_ecoscope.tasks.io import (
     get_analysis_field_from_event_details as get_analysis_field_from_event_details,
 )
@@ -81,26 +46,45 @@ from ecoscope_workflows_ext_ecoscope.tasks.io import (
 from ecoscope_workflows_ext_ecoscope.tasks.io import (
     get_event_type_from_event_details as get_event_type_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    add_spatial_index as add_spatial_index,
+from ecoscope_workflows_ext_ecoscope.tasks.io import (
+    set_event_details_params as set_event_details_params,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    apply_reloc_coord_filter as apply_reloc_coord_filter,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    normalize_json_column as normalize_json_column,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
-)
+
+get_events_from_combined_params = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_events_from_combined_params",  # 🧪
+)  # 🧪
+
+get_fields_from_event_type_schema = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_fields_from_event_type_schema",  # 🧪
+)  # 🧪
 
 get_choices_from_v2_event_type = create_task_magicmock(  # 🧪
     anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
     func_name="get_choices_from_v2_event_type",  # 🧪
 )  # 🧪
+from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
+from ecoscope_workflows_core.tasks.transformation import (
+    convert_values_to_timezone as convert_values_to_timezone,
+)
+from ecoscope_workflows_core.tasks.transformation import (
+    extract_value_from_json_column as extract_value_from_json_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    extract_spatial_grouper_feature_group_ids as extract_spatial_grouper_feature_group_ids,
+)
+
+get_spatial_features_group = create_task_magicmock(  # 🧪
+    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+    func_name="get_spatial_features_group",  # 🧪
+)  # 🧪
 from ecoscope_workflows_core.tasks.analysis import dataframe_count as dataframe_count
 from ecoscope_workflows_core.tasks.config import (
     concat_string_vars as concat_string_vars,
+)
+from ecoscope_workflows_core.tasks.config import (
+    default_if_string_is_empty as default_if_string_is_empty,
 )
 from ecoscope_workflows_core.tasks.config import (
     get_column_names_from_dataframe as get_column_names_from_dataframe,
@@ -127,16 +111,27 @@ from ecoscope_workflows_core.tasks.results import (
 from ecoscope_workflows_core.tasks.skip import (
     any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
+from ecoscope_workflows_core.tasks.skip import never as never
+from ecoscope_workflows_core.tasks.transformation import (
+    add_temporal_index as add_temporal_index,
+)
+from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
 from ecoscope_workflows_core.tasks.transformation import (
     convert_column_values_to_numeric as convert_column_values_to_numeric,
 )
 from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
+from ecoscope_workflows_core.tasks.transformation import (
+    lookup_string_var as lookup_string_var,
+)
 from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
 from ecoscope_workflows_core.tasks.transformation import map_values as map_values
 from ecoscope_workflows_core.tasks.transformation import (
     reorder_columns as reorder_columns,
 )
 from ecoscope_workflows_core.tasks.transformation import sort_values as sort_values
+from ecoscope_workflows_core.tasks.transformation import (
+    strip_prefix_from_column_names as strip_prefix_from_column_names,
+)
 from ecoscope_workflows_core.tasks.transformation import transpose as transpose
 from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
     calculate_feature_density as calculate_feature_density,
@@ -164,10 +159,16 @@ from ecoscope_workflows_ext_ecoscope.tasks.skip import (
     all_geometry_are_none as all_geometry_are_none,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    add_spatial_index as add_spatial_index,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     apply_classification as apply_classification,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     apply_color_map as apply_color_map,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    apply_reloc_coord_filter as apply_reloc_coord_filter,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_nan_values_by_column as drop_nan_values_by_column,
@@ -176,7 +177,13 @@ from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     drop_null_geometry as drop_null_geometry,
 )
 from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    normalize_json_column as normalize_json_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
     normalize_numeric_column as normalize_numeric_column,
+)
+from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+    resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
 )
 
 from ..params import Params
@@ -193,7 +200,19 @@ def main(params: Params):
         "time_range": [],
         "get_timezone": ["time_range"],
         "set_event_details_combined": ["er_client_name", "time_range"],
+        "analysis_field": ["set_event_details_combined"],
+        "analysis_field_label": ["set_event_details_combined"],
+        "analysis_field_unit": ["set_event_details_combined"],
+        "category_field": ["set_event_details_combined"],
+        "category_field_label": ["set_event_details_combined"],
+        "event_type": ["set_event_details_combined"],
         "get_events_data": ["set_event_details_combined"],
+        "get_event_schema_display_names": ["er_client_name", "event_type"],
+        "get_category_display_names": [
+            "er_client_name",
+            "event_type",
+            "category_field",
+        ],
         "convert_to_user_timezone": ["get_events_data", "get_timezone"],
         "extract_latitude": ["convert_to_user_timezone"],
         "extract_longitude": ["extract_latitude"],
@@ -204,16 +223,12 @@ def main(params: Params):
         "resolved_groupers": ["groupers", "fetch_all_spatial_feature_groups"],
         "filter_events": ["extract_reported_by"],
         "normalize_event_details": ["filter_events"],
-        "events_add_temporal_index": ["normalize_event_details", "resolved_groupers"],
+        "strip_event_details_prefix": ["normalize_event_details"],
+        "events_add_temporal_index": [
+            "strip_event_details_prefix",
+            "resolved_groupers",
+        ],
         "events_add_spatial_index": ["events_add_temporal_index", "resolved_groupers"],
-        "analysis_field_from_config": ["set_event_details_combined"],
-        "analysis_field": ["analysis_field_from_config"],
-        "analysis_field_label": ["set_event_details_combined"],
-        "analysis_field_unit": ["set_event_details_combined"],
-        "category_field_from_config": ["set_event_details_combined"],
-        "category_field": ["category_field_from_config"],
-        "category_field_label": ["set_event_details_combined"],
-        "event_type": ["set_event_details_combined"],
         "add_default_category_column": [
             "events_add_spatial_index",
             "analysis_field_unit",
@@ -224,14 +239,16 @@ def main(params: Params):
             "category_field_label_or_category",
             "category_field",
         ],
-        "title_case_columns": ["add_default_category_column"],
-        "get_category_display_names": [
-            "er_client_name",
-            "event_type",
-            "category_field_from_config",
-        ],
-        "ensure_analysis_column": ["title_case_columns", "analysis_field"],
+        "ensure_analysis_column": ["add_default_category_column", "analysis_field"],
         "ensure_category_column": ["ensure_analysis_column", "default_category_field"],
+        "analysis_field_display_name": [
+            "analysis_field",
+            "get_event_schema_display_names",
+        ],
+        "category_field_display_name": [
+            "default_category_field",
+            "get_event_schema_display_names",
+        ],
         "map_display_names": [
             "ensure_category_column",
             "default_category_field",
@@ -240,6 +257,11 @@ def main(params: Params):
         "convert_na_values": ["map_display_names", "default_category_field"],
         "rename_columns": ["convert_na_values"],
         "column_display_order": ["rename_columns"],
+        "events_table_columns": ["column_display_order"],
+        "events_table_display_columns": [
+            "get_event_schema_display_names",
+            "events_table_columns",
+        ],
         "ensure_numeric": ["rename_columns", "analysis_field"],
         "events_colormap": ["ensure_numeric", "default_category_field"],
         "set_summary_table_title": ["analysis_field_label"],
@@ -251,17 +273,18 @@ def main(params: Params):
         "set_density_map_title": ["analysis_field_label"],
         "set_events_table_title": [],
         "split_event_groups": ["events_colormap", "resolved_groupers"],
-        "drop_nan_values": ["analysis_field", "split_event_groups"],
+        "display_table": ["get_event_schema_display_names", "split_event_groups"],
+        "drop_nan_values": ["analysis_field_display_name", "display_table"],
         "base_map_defs": [],
-        "total_events": ["split_event_groups"],
+        "total_events": ["display_table"],
         "total_events_sv_widget": ["total_events"],
         "total_events_grouped_sv_widget": ["total_events_sv_widget"],
         "grouped_event_summary": [
-            "analysis_field",
-            "analysis_field",
-            "analysis_field",
-            "analysis_field",
-            "analysis_field",
+            "analysis_field_display_name",
+            "analysis_field_display_name",
+            "analysis_field_display_name",
+            "analysis_field_display_name",
+            "analysis_field_display_name",
             "drop_nan_values",
         ],
         "transpose_table": ["grouped_event_summary"],
@@ -271,8 +294,8 @@ def main(params: Params):
         "summary_table_single_views": ["set_summary_table_title", "summary_html_urls"],
         "grouped_summary_table_widget": ["summary_table_single_views"],
         "grouped_events_pie_chart": [
-            "analysis_field",
-            "default_category_field",
+            "analysis_field_display_name",
+            "category_field_display_name",
             "set_pie_chart_title",
             "drop_nan_values",
         ],
@@ -282,11 +305,11 @@ def main(params: Params):
             "grouped_pie_chart_html_urls",
         ],
         "grouped_events_pie_widget_merge": ["grouped_events_pie_chart_widgets"],
-        "normalize_analysis_field": ["analysis_field", "split_event_groups"],
+        "normalize_analysis_field": ["analysis_field_display_name", "display_table"],
         "drop_empty_geometry": ["normalize_analysis_field"],
         "grouped_events_map_layer": [
-            "default_category_field",
-            "analysis_field",
+            "category_field_display_name",
+            "analysis_field_display_name",
             "drop_empty_geometry",
         ],
         "grouped_events_ecomap": [
@@ -302,8 +325,8 @@ def main(params: Params):
         ],
         "grouped_events_map_widget_merge": ["grouped_events_map_widget"],
         "events_bar_chart": [
-            "analysis_field",
-            "default_category_field",
+            "analysis_field_display_name",
+            "category_field_display_name",
             "set_bar_chart_title",
             "drop_nan_values",
         ],
@@ -313,8 +336,8 @@ def main(params: Params):
         "events_meshgrid": ["events_add_spatial_index"],
         "grouped_events_feature_density": [
             "events_meshgrid",
-            "analysis_field",
-            "split_event_groups",
+            "analysis_field_display_name",
+            "display_table",
         ],
         "drop_nan_percentiles": ["grouped_events_feature_density"],
         "sort_grouped_density_values": ["drop_nan_percentiles"],
@@ -334,11 +357,10 @@ def main(params: Params):
             "grouped_fd_ecomap_html_url",
         ],
         "grouped_fd_map_widget_merge": ["grouped_fd_map_widget"],
-        "events_table_columns": ["column_display_order"],
         "events_table": [
-            "events_table_columns",
+            "events_table_display_columns",
             "set_events_table_title",
-            "split_event_groups",
+            "display_table",
         ],
         "table_html_urls": ["events_table"],
         "events_table_single_views": ["set_events_table_title", "table_html_urls"],
@@ -464,6 +486,118 @@ def main(params: Params):
             | (params_dict.get("set_event_details_combined") or {}),
             method="call",
         ),
+        "analysis_field": Node(
+            async_task=get_analysis_field_from_event_details.validate()
+            .set_task_instance_id("analysis_field")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("analysis_field") or {}),
+            method="call",
+        ),
+        "analysis_field_label": Node(
+            async_task=get_analysis_field_label_from_event_details.validate()
+            .set_task_instance_id("analysis_field_label")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("analysis_field_label") or {}),
+            method="call",
+        ),
+        "analysis_field_unit": Node(
+            async_task=get_analysis_field_unit_from_event_details.validate()
+            .set_task_instance_id("analysis_field_unit")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("analysis_field_unit") or {}),
+            method="call",
+        ),
+        "category_field": Node(
+            async_task=get_category_field_from_event_details.validate()
+            .set_task_instance_id("category_field")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_dependency_is_none,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("category_field") or {}),
+            method="call",
+        ),
+        "category_field_label": Node(
+            async_task=get_category_field_label_from_event_details.validate()
+            .set_task_instance_id("category_field_label")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_dependency_is_none,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("category_field_label") or {}),
+            method="call",
+        ),
+        "event_type": Node(
+            async_task=get_event_type_from_event_details.validate()
+            .set_task_instance_id("event_type")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "combined_params": DependsOn("set_event_details_combined"),
+            }
+            | (params_dict.get("event_type") or {}),
+            method="call",
+        ),
         "get_events_data": Node(
             async_task=get_events_from_combined_params.validate()
             .set_task_instance_id("get_events_data")
@@ -481,6 +615,47 @@ def main(params: Params):
                 "combined_params": DependsOn("set_event_details_combined"),
             }
             | (params_dict.get("get_events_data") or {}),
+            method="call",
+        ),
+        "get_event_schema_display_names": Node(
+            async_task=get_fields_from_event_type_schema.validate()
+            .set_task_instance_id("get_event_schema_display_names")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "client": DependsOn("er_client_name"),
+                "event_type": DependsOn("event_type"),
+            }
+            | (params_dict.get("get_event_schema_display_names") or {}),
+            method="call",
+        ),
+        "get_category_display_names": Node(
+            async_task=get_choices_from_v2_event_type.validate()
+            .set_task_instance_id("get_category_display_names")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "client": DependsOn("er_client_name"),
+                "event_type": DependsOn("event_type"),
+                "choice_field": DependsOn("category_field"),
+            }
+            | (params_dict.get("get_category_display_names") or {}),
             method="call",
         ),
         "convert_to_user_timezone": Node(
@@ -702,6 +877,26 @@ def main(params: Params):
             | (params_dict.get("normalize_event_details") or {}),
             method="call",
         ),
+        "strip_event_details_prefix": Node(
+            async_task=strip_prefix_from_column_names.validate()
+            .set_task_instance_id("strip_event_details_prefix")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "prefix": "event_details__",
+                "df": DependsOn("normalize_event_details"),
+            }
+            | (params_dict.get("strip_event_details_prefix") or {}),
+            method="call",
+        ),
         "events_add_temporal_index": Node(
             async_task=add_temporal_index.validate()
             .set_task_instance_id("events_add_temporal_index")
@@ -716,7 +911,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("normalize_event_details"),
+                "df": DependsOn("strip_event_details_prefix"),
                 "time_col": "time",
                 "groupers": DependsOn("resolved_groupers"),
                 "cast_to_datetime": True,
@@ -743,156 +938,6 @@ def main(params: Params):
                 "groupers": DependsOn("resolved_groupers"),
             }
             | (params_dict.get("events_add_spatial_index") or {}),
-            method="call",
-        ),
-        "analysis_field_from_config": Node(
-            async_task=get_analysis_field_from_event_details.validate()
-            .set_task_instance_id("analysis_field_from_config")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("analysis_field_from_config") or {}),
-            method="call",
-        ),
-        "analysis_field": Node(
-            async_task=title_case_var.validate()
-            .set_task_instance_id("analysis_field")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "var": DependsOn("analysis_field_from_config"),
-            }
-            | (params_dict.get("analysis_field") or {}),
-            method="call",
-        ),
-        "analysis_field_label": Node(
-            async_task=get_analysis_field_label_from_event_details.validate()
-            .set_task_instance_id("analysis_field_label")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("analysis_field_label") or {}),
-            method="call",
-        ),
-        "analysis_field_unit": Node(
-            async_task=get_analysis_field_unit_from_event_details.validate()
-            .set_task_instance_id("analysis_field_unit")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("analysis_field_unit") or {}),
-            method="call",
-        ),
-        "category_field_from_config": Node(
-            async_task=get_category_field_from_event_details.validate()
-            .set_task_instance_id("category_field_from_config")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("category_field_from_config") or {}),
-            method="call",
-        ),
-        "category_field": Node(
-            async_task=title_case_var.validate()
-            .set_task_instance_id("category_field")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_dependency_is_none,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "var": DependsOn("category_field_from_config"),
-            }
-            | (params_dict.get("category_field") or {}),
-            method="call",
-        ),
-        "category_field_label": Node(
-            async_task=get_category_field_label_from_event_details.validate()
-            .set_task_instance_id("category_field_label")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_dependency_is_none,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("category_field_label") or {}),
-            method="call",
-        ),
-        "event_type": Node(
-            async_task=get_event_type_from_event_details.validate()
-            .set_task_instance_id("event_type")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "combined_params": DependsOn("set_event_details_combined"),
-            }
-            | (params_dict.get("event_type") or {}),
             method="call",
         ),
         "add_default_category_column": Node(
@@ -977,47 +1022,6 @@ def main(params: Params):
             | (params_dict.get("default_category_field_label") or {}),
             method="call",
         ),
-        "title_case_columns": Node(
-            async_task=title_case_columns_by_prefix.validate()
-            .set_task_instance_id("title_case_columns")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "df": DependsOn("add_default_category_column"),
-                "prefix": "event_details__",
-            }
-            | (params_dict.get("title_case_columns") or {}),
-            method="call",
-        ),
-        "get_category_display_names": Node(
-            async_task=get_choices_from_v2_event_type.validate()
-            .set_task_instance_id("get_category_display_names")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "client": DependsOn("er_client_name"),
-                "event_type": DependsOn("event_type"),
-                "choice_field": DependsOn("category_field_from_config"),
-            }
-            | (params_dict.get("get_category_display_names") or {}),
-            method="call",
-        ),
         "ensure_analysis_column": Node(
             async_task=assign_value.validate()
             .set_task_instance_id("ensure_analysis_column")
@@ -1032,7 +1036,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "df": DependsOn("title_case_columns"),
+                "df": DependsOn("add_default_category_column"),
                 "column_name": DependsOn("analysis_field"),
                 "value": None,
                 "noop_if_column_exists": True,
@@ -1060,6 +1064,48 @@ def main(params: Params):
                 "noop_if_column_exists": True,
             }
             | (params_dict.get("ensure_category_column") or {}),
+            method="call",
+        ),
+        "analysis_field_display_name": Node(
+            async_task=lookup_string_var.validate()
+            .set_task_instance_id("analysis_field_display_name")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "var": DependsOn("analysis_field"),
+                "value_map": DependsOn("get_event_schema_display_names"),
+                "raise_if_not_found": True,
+            }
+            | (params_dict.get("analysis_field_display_name") or {}),
+            method="call",
+        ),
+        "category_field_display_name": Node(
+            async_task=lookup_string_var.validate()
+            .set_task_instance_id("category_field_display_name")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "var": DependsOn("default_category_field"),
+                "value_map": DependsOn("get_event_schema_display_names"),
+                "raise_if_not_found": False,
+            }
+            | (params_dict.get("category_field_display_name") or {}),
             method="call",
         ),
         "map_display_names": Node(
@@ -1126,7 +1172,7 @@ def main(params: Params):
                 "drop_columns": [
                     "reported_by",
                     "location",
-                    "Updates",
+                    "updates",
                 ],
                 "rename_columns": {
                     "serial_number": "Serial Number",
@@ -1136,6 +1182,7 @@ def main(params: Params):
                     "longitude": "Longitude",
                     "event_category": "Event Category",
                 },
+                "raise_if_not_found": True,
             }
             | (params_dict.get("rename_columns") or {}),
             method="call",
@@ -1165,6 +1212,57 @@ def main(params: Params):
             }
             | (params_dict.get("column_display_order") or {}),
             method="call",
+        ),
+        "events_table_columns": Node(
+            async_task=get_column_names_from_dataframe.validate()
+            .set_task_instance_id("events_table_columns")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "df": DependsOn("column_display_order"),
+                "exclude_column_names": [
+                    "id",
+                    "geometry",
+                    "events_colormap",
+                    "event_type",
+                    "default_category",
+                    "Event Category",
+                ],
+            }
+            | (params_dict.get("events_table_columns") or {}),
+            method="call",
+        ),
+        "events_table_display_columns": Node(
+            async_task=lookup_string_var.validate()
+            .set_task_instance_id("events_table_display_columns")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "value_map": DependsOn("get_event_schema_display_names"),
+                "raise_if_not_found": False,
+            }
+            | (params_dict.get("events_table_display_columns") or {}),
+            method="map",
+            kwargs={
+                "argnames": ["var"],
+                "argvalues": DependsOn("events_table_columns"),
+            },
         ),
         "ensure_numeric": Node(
             async_task=convert_column_values_to_numeric.validate()
@@ -1414,6 +1512,30 @@ def main(params: Params):
             | (params_dict.get("split_event_groups") or {}),
             method="call",
         ),
+        "display_table": Node(
+            async_task=map_columns.validate()
+            .set_task_instance_id("display_table")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "rename_columns": DependsOn("get_event_schema_display_names"),
+                "raise_if_not_found": False,
+            }
+            | (params_dict.get("display_table") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["df"],
+                "argvalues": DependsOn("split_event_groups"),
+            },
+        ),
         "drop_nan_values": Node(
             async_task=drop_nan_values_by_column.validate()
             .set_task_instance_id("drop_nan_values")
@@ -1428,13 +1550,13 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "column_name": DependsOn("analysis_field"),
+                "column_name": DependsOn("analysis_field_display_name"),
             }
             | (params_dict.get("drop_nan_values") or {}),
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("display_table"),
             },
         ),
         "base_map_defs": Node(
@@ -1470,7 +1592,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("display_table"),
             },
         ),
         "total_events_sv_widget": Node(
@@ -1533,27 +1655,27 @@ def main(params: Params):
                     {
                         "display_name": "Sum",
                         "aggregator": "sum",
-                        "column": DependsOn("analysis_field"),
+                        "column": DependsOn("analysis_field_display_name"),
                     },
                     {
                         "display_name": "Min",
                         "aggregator": "min",
-                        "column": DependsOn("analysis_field"),
+                        "column": DependsOn("analysis_field_display_name"),
                     },
                     {
                         "display_name": "Max",
                         "aggregator": "max",
-                        "column": DependsOn("analysis_field"),
+                        "column": DependsOn("analysis_field_display_name"),
                     },
                     {
                         "display_name": "Median",
                         "aggregator": "median",
-                        "column": DependsOn("analysis_field"),
+                        "column": DependsOn("analysis_field_display_name"),
                     },
                     {
                         "display_name": "Mean",
                         "aggregator": "mean",
-                        "column": DependsOn("analysis_field"),
+                        "column": DependsOn("analysis_field_display_name"),
                     },
                 ],
                 "groupby_cols": None,
@@ -1606,6 +1728,7 @@ def main(params: Params):
                 "rename_columns": {
                     "0": "Summary Values",
                 },
+                "raise_if_not_found": True,
             }
             | (params_dict.get("rename_summary_columns") or {}),
             method="mapvalues",
@@ -1726,12 +1849,12 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "value_column": DependsOn("analysis_field"),
+                "value_column": DependsOn("analysis_field_display_name"),
                 "color_column": "events_colormap",
                 "plot_style": {
                     "textinfo": "value",
                 },
-                "label_column": DependsOn("default_category_field"),
+                "label_column": DependsOn("category_field_display_name"),
                 "layout_style": None,
                 "widget_id": DependsOn("set_pie_chart_title"),
             }
@@ -1821,14 +1944,14 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "column": DependsOn("analysis_field"),
+                "column": DependsOn("analysis_field_display_name"),
                 "output_column_name": "normalized_analysis_field",
             }
             | (params_dict.get("normalize_analysis_field") or {}),
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("display_table"),
             },
         ),
         "drop_empty_geometry": Node(
@@ -1874,14 +1997,14 @@ def main(params: Params):
                     "radius_scale": 5,
                 },
                 "legend": {
-                    "label_column": DependsOn("default_category_field"),
+                    "label_column": DependsOn("category_field_display_name"),
                     "color_column": "events_colormap",
                 },
                 "tooltip_columns": [
                     "Serial Number",
                     "Event Time",
                     "Reported By",
-                    DependsOn("analysis_field"),
+                    DependsOn("analysis_field_display_name"),
                 ],
             }
             | (params_dict.get("grouped_events_map_layer") or {}),
@@ -2006,8 +2129,8 @@ def main(params: Params):
             .set_executor("lithops"),
             partial={
                 "x_axis": "Event Time",
-                "y_axis": DependsOn("analysis_field"),
-                "category": DependsOn("default_category_field"),
+                "y_axis": DependsOn("analysis_field_display_name"),
+                "category": DependsOn("category_field_display_name"),
                 "agg_function": "sum",
                 "color_column": "events_colormap",
                 "plot_style": {
@@ -2125,13 +2248,13 @@ def main(params: Params):
             partial={
                 "meshgrid": DependsOn("events_meshgrid"),
                 "geometry_type": "point",
-                "sum_column": DependsOn("analysis_field"),
+                "sum_column": DependsOn("analysis_field_display_name"),
             }
             | (params_dict.get("grouped_events_feature_density") or {}),
             method="mapvalues",
             kwargs={
                 "argnames": ["geodataframe"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("display_table"),
             },
         ),
         "drop_nan_percentiles": Node(
@@ -2266,6 +2389,7 @@ def main(params: Params):
                 "rename_columns": {
                     "density": "Density",
                 },
+                "raise_if_not_found": True,
             }
             | (params_dict.get("fd_rename_columns") or {}),
             method="mapvalues",
@@ -2409,33 +2533,6 @@ def main(params: Params):
             | (params_dict.get("grouped_fd_map_widget_merge") or {}),
             method="call",
         ),
-        "events_table_columns": Node(
-            async_task=get_column_names_from_dataframe.validate()
-            .set_task_instance_id("events_table_columns")
-            .handle_errors()
-            .with_tracing()
-            .skipif(
-                conditions=[
-                    any_is_empty_df,
-                    any_dependency_skipped,
-                ],
-                unpack_depth=1,
-            )
-            .set_executor("lithops"),
-            partial={
-                "df": DependsOn("column_display_order"),
-                "exclude_column_names": [
-                    "id",
-                    "geometry",
-                    "events_colormap",
-                    "event_type",
-                    "default_category",
-                    "Event Category",
-                ],
-            }
-            | (params_dict.get("events_table_columns") or {}),
-            method="call",
-        ),
         "events_table": Node(
             async_task=draw_table.validate()
             .set_task_instance_id("events_table")
@@ -2450,7 +2547,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "columns": DependsOn("events_table_columns"),
+                "columns": DependsOn("events_table_display_columns"),
                 "table_config": {
                     "enable_sorting": True,
                     "enable_filtering": False,
@@ -2463,7 +2560,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["dataframe"],
-                "argvalues": DependsOn("split_event_groups"),
+                "argvalues": DependsOn("display_table"),
             },
         ),
         "table_html_urls": Node(
