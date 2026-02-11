@@ -142,7 +142,8 @@
           "title": " ",
           "type": "array",
           "description": "            Specify how the data should be grouped to create the views for your dashboard.\n            This field is optional; if left blank, all the data will appear in a single view.\n            ",
-          "ecoscope:spatial_feature_group": "properties.er_client_name.properties.data_source.properties.name"
+          "ecoscope:spatial_feature_group": "properties.er_client_name.properties.data_source.properties.name",
+          "ecoscope:event_type_schema_choice_prop": "properties.set_event_details_combined.properties.event_type"
         }
       },
       "type": "object",
