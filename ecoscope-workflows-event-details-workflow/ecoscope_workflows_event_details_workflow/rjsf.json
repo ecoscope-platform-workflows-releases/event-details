@@ -142,7 +142,8 @@
           "title": " ",
           "type": "array",
           "description": "            Specify how the data should be grouped to create the views for your dashboard.\n            This field is optional; if left blank, all the data will appear in a single view.\n            ",
-          "ecoscope:spatial_feature_group": "properties.er_client_name.properties.data_source.properties.name"
+          "ecoscope:spatial_feature_group": "properties.er_client_name.properties.data_source.properties.name",
+          "ecoscope:event_type_schema_choice_prop": "properties.set_event_details_combined.properties.event_type"
         }
       },
       "type": "object",
@@ -418,7 +419,7 @@
         }
       }
     },
-    "Event Density Map": {
+    "Analysis Field Sum Map": {
       "type": "object",
       "description": "These settings generate a grid-based heatmap showing where events are concentrated.",
       "ecoscope:task_group": true,
@@ -445,7 +446,7 @@
               "default": "EPSG:3857",
               "title": "Coordinate Reference System",
               "type": "string",
-              "description": "The coordinate reference system in which to perform the density calculation, must be a valid CRS authority code, for example ESRI:53042",
+              "description": "The coordinate reference system in which to perform the calculation, must be a valid CRS authority code, for example ESRI:53042",
               "ecoscope:advanced": true
             }
           },
@@ -690,7 +691,7 @@
         }
       }
     },
-    "Event Density Map": {
+    "Analysis Field Sum Map": {
       "events_meshgrid": {
         "ui:order": [
           "auto_scale_or_custom_cell_size",
@@ -731,7 +732,7 @@
       "filter_events",
       "base_map_defs",
       "Events Bar Chart",
-      "Event Density Map"
+      "Analysis Field Sum Map"
     ],
     "base_map_defs": {
       "base_maps": {

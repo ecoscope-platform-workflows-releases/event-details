@@ -1780,19 +1780,19 @@ set_bar_chart_title = (
 
 
 # %% [markdown]
-# ## Set Density Map Title
+# ## Set Analysis Field Sum Map Title
 
 # %%
 # parameters
 
-set_density_map_title_params = dict()
+set_sum_map_title_params = dict()
 
 # %%
 # call the task
 
 
-set_density_map_title = (
-    concat_string_vars.set_task_instance_id("set_density_map_title")
+set_sum_map_title = (
+    concat_string_vars.set_task_instance_id("set_sum_map_title")
     .handle_errors()
     .with_tracing()
     .skipif(
@@ -1802,7 +1802,7 @@ set_density_map_title = (
         ],
         unpack_depth=1,
     )
-    .partial(values=[analysis_field_label, " Sum"], **set_density_map_title_params)
+    .partial(values=[analysis_field_label, " Sum"], **set_sum_map_title_params)
     .call()
 )
 
@@ -2828,19 +2828,19 @@ events_meshgrid = (
 
 
 # %% [markdown]
-# ## Grouped Events Feature Density
+# ## Calculate Analysis Field Sum
 
 # %%
 # parameters
 
-grouped_events_feature_density_params = dict()
+grouped_events_sum_map_params = dict()
 
 # %%
 # call the task
 
 
-grouped_events_feature_density = (
-    calculate_feature_density.set_task_instance_id("grouped_events_feature_density")
+grouped_events_sum_map = (
+    calculate_feature_density.set_task_instance_id("grouped_events_sum_map")
     .handle_errors()
     .with_tracing()
     .skipif(
@@ -2854,7 +2854,7 @@ grouped_events_feature_density = (
         meshgrid=events_meshgrid,
         geometry_type="point",
         sum_column=analysis_field_display_name,
-        **grouped_events_feature_density_params,
+        **grouped_events_sum_map_params,
     )
     .mapvalues(argnames=["geodataframe"], argvalues=display_table)
 )
@@ -2884,24 +2884,24 @@ drop_nan_percentiles = (
         unpack_depth=1,
     )
     .partial(column_name="density", **drop_nan_percentiles_params)
-    .mapvalues(argnames=["df"], argvalues=grouped_events_feature_density)
+    .mapvalues(argnames=["df"], argvalues=grouped_events_sum_map)
 )
 
 
 # %% [markdown]
-# ## Sort Density By Classification
+# ## Sort Analysis Field Sum By Classification
 
 # %%
 # parameters
 
-sort_grouped_density_values_params = dict()
+sort_grouped_sum_values_params = dict()
 
 # %%
 # call the task
 
 
-sort_grouped_density_values = (
-    sort_values.set_task_instance_id("sort_grouped_density_values")
+sort_grouped_sum_values = (
+    sort_values.set_task_instance_id("sort_grouped_sum_values")
     .handle_errors()
     .with_tracing()
     .skipif(
@@ -2915,14 +2915,14 @@ sort_grouped_density_values = (
         column_name="density",
         ascending=True,
         na_position="last",
-        **sort_grouped_density_values_params,
+        **sort_grouped_sum_values_params,
     )
     .mapvalues(argnames=["df"], argvalues=drop_nan_percentiles)
 )
 
 
 # %% [markdown]
-# ## Classify Density Values
+# ## Classify Analysis Field Sum Values
 
 # %%
 # parameters
@@ -2951,12 +2951,12 @@ classify_fd = (
         label_options={"label_ranges": True, "label_decimals": 0},
         **classify_fd_params,
     )
-    .mapvalues(argnames=["df"], argvalues=sort_grouped_density_values)
+    .mapvalues(argnames=["df"], argvalues=sort_grouped_sum_values)
 )
 
 
 # %% [markdown]
-# ## Grouped Feature Density Colormap
+# ## Analysis Field Sum Colormap
 
 # %%
 # parameters
@@ -3024,7 +3024,7 @@ fd_rename_columns = (
     .partial(
         drop_columns=[],
         retain_columns=[],
-        rename_columns={"density": "Density"},
+        rename_columns={"density": "Sum"},
         raise_if_not_found=True,
         **fd_rename_columns_params,
     )
@@ -3033,7 +3033,7 @@ fd_rename_columns = (
 
 
 # %% [markdown]
-# ## Create map layer from Feature Density
+# ## Create map layer from Analysis Field Sum
 
 # %%
 # parameters
@@ -3065,7 +3065,7 @@ grouped_fd_map_layer = (
             "opacity": 0.4,
         },
         legend={"label_column": "density_bins", "color_column": "density_colormap"},
-        tooltip_columns=["Density"],
+        tooltip_columns=["Sum"],
         **grouped_fd_map_layer_params,
     )
     .mapvalues(argnames=["geodataframe"], argvalues=fd_rename_columns)
@@ -3073,7 +3073,7 @@ grouped_fd_map_layer = (
 
 
 # %% [markdown]
-# ## Draw Ecomap from Feature Density
+# ## Draw Ecomap from Analysis Field Sum
 
 # %%
 # parameters
@@ -3108,7 +3108,7 @@ grouped_fd_ecomap = (
         },
         static=False,
         max_zoom=20,
-        widget_id=set_density_map_title,
+        widget_id=set_sum_map_title,
         **grouped_fd_ecomap_params,
     )
     .mapvalues(argnames=["geo_layers"], argvalues=grouped_fd_map_layer)
@@ -3116,7 +3116,7 @@ grouped_fd_ecomap = (
 
 
 # %% [markdown]
-# ## Persist Feature Density Ecomap as Text
+# ## Persist Analysis Field Sum Ecomap as Text
 
 # %%
 # parameters
@@ -3150,7 +3150,7 @@ grouped_fd_ecomap_html_url = (
 
 
 # %% [markdown]
-# ## Create Feature Density Map Widget
+# ## Create Analysis Field Sum Map Widget
 
 # %%
 # parameters
@@ -3171,13 +3171,13 @@ grouped_fd_map_widget = (
         ],
         unpack_depth=1,
     )
-    .partial(title=set_density_map_title, **grouped_fd_map_widget_params)
+    .partial(title=set_sum_map_title, **grouped_fd_map_widget_params)
     .map(argnames=["view", "data"], argvalues=grouped_fd_ecomap_html_url)
 )
 
 
 # %% [markdown]
-# ## Merge Feature Density Widget Views
+# ## Merge Analysis Field Sum Widget Views
 
 # %%
 # parameters

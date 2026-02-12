@@ -1,15 +1,16 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.22.3
+    version: 0.22.5
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.22.3
+    version: 0.22.5
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
     set_event_details_combined.properties.event_type.ecoscope:event_type_schema_properties: properties.er_client_name.properties.data_source.properties.name
     groupers.properties.groupers.ecoscope:spatial_feature_group: properties.er_client_name.properties.data_source.properties.name
+    groupers.properties.groupers.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
     set_event_details_combined.properties.analysis_field.ecoscope:event_type_schema_numeric_prop: properties.set_event_details_combined.properties.event_type
     set_event_details_combined.properties.category_field.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
   $defs:
@@ -22,7 +23,7 @@ rjsf-overrides:
     set_event_details_combined.event_types.ui:options.displayLabel: false
     filter_events.filter_point_coords.items.ui:options.label: false
     base_map_defs.base_maps.items.ui:options.label: false
-    Event Density Map.events_meshgrid.auto_scale_or_custom_cell_size:
+    Analysis Field Sum Map.events_meshgrid.auto_scale_or_custom_cell_size:
       anyOf:
         - ui:help: Auto-scale for an optimized grid cell size based the workflow data or Customize to set a specific grid cell size.
           ui:options:
@@ -408,8 +409,8 @@ workflow:
         - ${{ workflow.analysis_field_label.return }}
         - ${{ workflow.by_category_field_str.return }}
         - ' Over Time'
-  - name: Set Density Map Title
-    id: set_density_map_title
+  - name: Set Analysis Field Sum Map Title
+    id: set_sum_map_title
     task: concat_string_vars
     partial:
       values:
@@ -731,7 +732,7 @@ workflow:
         task: merge_widget_views
         partial:
           widgets: ${{ workflow.events_bar_chart_widget.return }}
-  - title: Event Density Map
+  - title: Analysis Field Sum Map
     type: task-group
     description: These settings generate a grid-based heatmap showing where events are concentrated.
     tasks:
@@ -746,8 +747,8 @@ workflow:
         partial:
           aoi: ${{ workflow.events_add_spatial_index.return }}
           intersecting_only: false
-      - name: Grouped Events Feature Density
-        id: grouped_events_feature_density
+      - name: Calculate Analysis Field Sum
+        id: grouped_events_sum_map
         task: calculate_feature_density
         partial:
           meshgrid: ${{ workflow.events_meshgrid.return }}
@@ -763,9 +764,9 @@ workflow:
           column_name: density
         mapvalues:
           argnames: df
-          argvalues: ${{ workflow.grouped_events_feature_density.return }}
-      - name: Sort Density By Classification
-        id: sort_grouped_density_values
+          argvalues: ${{ workflow.grouped_events_sum_map.return }}
+      - name: Sort Analysis Field Sum By Classification
+        id: sort_grouped_sum_values
         task: sort_values
         partial:
           column_name: density
@@ -774,7 +775,7 @@ workflow:
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.drop_nan_percentiles.return }}
-      - name: Classify Density Values
+      - name: Classify Analysis Field Sum Values
         id: classify_fd
         task: apply_classification
         partial:
@@ -788,8 +789,8 @@ workflow:
             label_decimals: 0
         mapvalues:
           argnames: df
-          argvalues: ${{ workflow.sort_grouped_density_values.return }}
-      - name: Grouped Feature Density Colormap
+          argvalues: ${{ workflow.sort_grouped_sum_values.return }}
+      - name: Analysis Field Sum Colormap
         id: grouped_fd_colormap
         task: apply_color_map
         partial:
@@ -815,12 +816,12 @@ workflow:
           drop_columns: []
           retain_columns: []
           rename_columns:
-            density: Density
+            density: Sum
           raise_if_not_found: true
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.grouped_fd_colormap.return }}
-      - name: Create map layer from Feature Density
+      - name: Create map layer from Analysis Field Sum
         id: grouped_fd_map_layer
         task: create_polygon_layer
         skipif:
@@ -837,11 +838,11 @@ workflow:
             label_column: density_bins
             color_column: density_colormap
           tooltip_columns:
-            - Density
+            - Sum
         mapvalues:
           argnames: geodataframe
           argvalues: ${{ workflow.fd_rename_columns.return}}
-      - name: Draw Ecomap from Feature Density
+      - name: Draw Ecomap from Analysis Field Sum
         id: grouped_fd_ecomap
         task: draw_ecomap
         partial:
@@ -855,11 +856,11 @@ workflow:
             placement: bottom-right
           static: false
           max_zoom: 20
-          widget_id: ${{ workflow.set_density_map_title.return }}
+          widget_id: ${{ workflow.set_sum_map_title.return }}
         mapvalues:
           argnames: geo_layers
           argvalues: ${{ workflow.grouped_fd_map_layer.return }}
-      - name: Persist Feature Density Ecomap as Text
+      - name: Persist Analysis Field Sum Ecomap as Text
         id: grouped_fd_ecomap_html_url
         task: persist_text
         partial:
@@ -868,20 +869,20 @@ workflow:
         mapvalues:
           argnames: text
           argvalues: ${{ workflow.grouped_fd_ecomap.return }}
-      - name: Create Feature Density Map Widget
+      - name: Create Analysis Field Sum Map Widget
         id: grouped_fd_map_widget
         task: create_map_widget_single_view
         skipif:
           conditions:
             - never
         partial:
-          title: ${{ workflow.set_density_map_title.return }}
+          title: ${{ workflow.set_sum_map_title.return }}
         map:
           argnames:
             - view
             - data
           argvalues: ${{ workflow.grouped_fd_ecomap_html_url.return }}
-      - name: Merge Feature Density Widget Views
+      - name: Merge Analysis Field Sum Widget Views
         id: grouped_fd_map_widget_merge
         task: merge_widget_views
         partial:
