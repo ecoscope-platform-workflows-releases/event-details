@@ -1197,9 +1197,9 @@ def main(params: Params):
         .call()
     )
 
-    set_density_map_title = (
+    set_sum_map_title = (
         concat_string_vars.validate()
-        .set_task_instance_id("set_density_map_title")
+        .set_task_instance_id("set_sum_map_title")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1211,7 +1211,7 @@ def main(params: Params):
         )
         .partial(
             values=[analysis_field_label, " Sum"],
-            **(params_dict.get("set_density_map_title") or {}),
+            **(params_dict.get("set_sum_map_title") or {}),
         )
         .call()
     )
@@ -1879,9 +1879,9 @@ def main(params: Params):
         .call()
     )
 
-    grouped_events_feature_density = (
+    grouped_events_sum_map = (
         calculate_feature_density.validate()
-        .set_task_instance_id("grouped_events_feature_density")
+        .set_task_instance_id("grouped_events_sum_map")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1895,7 +1895,7 @@ def main(params: Params):
             meshgrid=events_meshgrid,
             geometry_type="point",
             sum_column=analysis_field_display_name,
-            **(params_dict.get("grouped_events_feature_density") or {}),
+            **(params_dict.get("grouped_events_sum_map") or {}),
         )
         .mapvalues(argnames=["geodataframe"], argvalues=display_table)
     )
@@ -1915,12 +1915,12 @@ def main(params: Params):
         .partial(
             column_name="density", **(params_dict.get("drop_nan_percentiles") or {})
         )
-        .mapvalues(argnames=["df"], argvalues=grouped_events_feature_density)
+        .mapvalues(argnames=["df"], argvalues=grouped_events_sum_map)
     )
 
-    sort_grouped_density_values = (
+    sort_grouped_sum_values = (
         sort_values.validate()
-        .set_task_instance_id("sort_grouped_density_values")
+        .set_task_instance_id("sort_grouped_sum_values")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1934,7 +1934,7 @@ def main(params: Params):
             column_name="density",
             ascending=True,
             na_position="last",
-            **(params_dict.get("sort_grouped_density_values") or {}),
+            **(params_dict.get("sort_grouped_sum_values") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=drop_nan_percentiles)
     )
@@ -1958,7 +1958,7 @@ def main(params: Params):
             label_options={"label_ranges": True, "label_decimals": 0},
             **(params_dict.get("classify_fd") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=sort_grouped_density_values)
+        .mapvalues(argnames=["df"], argvalues=sort_grouped_sum_values)
     )
 
     grouped_fd_colormap = (
@@ -2007,7 +2007,7 @@ def main(params: Params):
         .partial(
             drop_columns=[],
             retain_columns=[],
-            rename_columns={"density": "Density"},
+            rename_columns={"density": "Sum"},
             raise_if_not_found=True,
             **(params_dict.get("fd_rename_columns") or {}),
         )
@@ -2034,7 +2034,7 @@ def main(params: Params):
                 "opacity": 0.4,
             },
             legend={"label_column": "density_bins", "color_column": "density_colormap"},
-            tooltip_columns=["Density"],
+            tooltip_columns=["Sum"],
             **(params_dict.get("grouped_fd_map_layer") or {}),
         )
         .mapvalues(argnames=["geodataframe"], argvalues=fd_rename_columns)
@@ -2063,7 +2063,7 @@ def main(params: Params):
             },
             static=False,
             max_zoom=20,
-            widget_id=set_density_map_title,
+            widget_id=set_sum_map_title,
             **(params_dict.get("grouped_fd_ecomap") or {}),
         )
         .mapvalues(argnames=["geo_layers"], argvalues=grouped_fd_map_layer)
@@ -2101,8 +2101,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            title=set_density_map_title,
-            **(params_dict.get("grouped_fd_map_widget") or {}),
+            title=set_sum_map_title, **(params_dict.get("grouped_fd_map_widget") or {})
         )
         .map(argnames=["view", "data"], argvalues=grouped_fd_ecomap_html_url)
     )

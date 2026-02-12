@@ -270,7 +270,7 @@ def main(params: Params):
         "set_pie_chart_title": ["pie_chart_title_pt1", "by_category_field_str"],
         "set_events_map_title": ["analysis_field_label", "by_category_field_str"],
         "set_bar_chart_title": ["analysis_field_label", "by_category_field_str"],
-        "set_density_map_title": ["analysis_field_label"],
+        "set_sum_map_title": ["analysis_field_label"],
         "set_events_table_title": [],
         "split_event_groups": ["events_colormap", "resolved_groupers"],
         "display_table": ["get_event_schema_display_names", "split_event_groups"],
@@ -334,28 +334,25 @@ def main(params: Params):
         "events_bar_chart_widget": ["set_bar_chart_title", "events_bar_chart_html_url"],
         "grouped_bar_plot_widget_merge": ["events_bar_chart_widget"],
         "events_meshgrid": ["events_add_spatial_index"],
-        "grouped_events_feature_density": [
+        "grouped_events_sum_map": [
             "events_meshgrid",
             "analysis_field_display_name",
             "display_table",
         ],
-        "drop_nan_percentiles": ["grouped_events_feature_density"],
-        "sort_grouped_density_values": ["drop_nan_percentiles"],
-        "classify_fd": ["sort_grouped_density_values"],
+        "drop_nan_percentiles": ["grouped_events_sum_map"],
+        "sort_grouped_sum_values": ["drop_nan_percentiles"],
+        "classify_fd": ["sort_grouped_sum_values"],
         "grouped_fd_colormap": ["classify_fd"],
         "fd_rename_columns": ["grouped_fd_colormap"],
         "grouped_fd_map_layer": ["fd_rename_columns"],
         "grouped_fd_ecomap": [
             "base_map_defs",
             "analysis_field_unit",
-            "set_density_map_title",
+            "set_sum_map_title",
             "grouped_fd_map_layer",
         ],
         "grouped_fd_ecomap_html_url": ["grouped_fd_ecomap"],
-        "grouped_fd_map_widget": [
-            "set_density_map_title",
-            "grouped_fd_ecomap_html_url",
-        ],
+        "grouped_fd_map_widget": ["set_sum_map_title", "grouped_fd_ecomap_html_url"],
         "grouped_fd_map_widget_merge": ["grouped_fd_map_widget"],
         "events_table": [
             "events_table_display_columns",
@@ -1451,9 +1448,9 @@ def main(params: Params):
             | (params_dict.get("set_bar_chart_title") or {}),
             method="call",
         ),
-        "set_density_map_title": Node(
+        "set_sum_map_title": Node(
             async_task=concat_string_vars.validate()
-            .set_task_instance_id("set_density_map_title")
+            .set_task_instance_id("set_sum_map_title")
             .handle_errors()
             .with_tracing()
             .skipif(
@@ -1470,7 +1467,7 @@ def main(params: Params):
                     " Sum",
                 ],
             }
-            | (params_dict.get("set_density_map_title") or {}),
+            | (params_dict.get("set_sum_map_title") or {}),
             method="call",
         ),
         "set_events_table_title": Node(
@@ -2232,9 +2229,9 @@ def main(params: Params):
             | (params_dict.get("events_meshgrid") or {}),
             method="call",
         ),
-        "grouped_events_feature_density": Node(
+        "grouped_events_sum_map": Node(
             async_task=calculate_feature_density.validate()
-            .set_task_instance_id("grouped_events_feature_density")
+            .set_task_instance_id("grouped_events_sum_map")
             .handle_errors()
             .with_tracing()
             .skipif(
@@ -2250,7 +2247,7 @@ def main(params: Params):
                 "geometry_type": "point",
                 "sum_column": DependsOn("analysis_field_display_name"),
             }
-            | (params_dict.get("grouped_events_feature_density") or {}),
+            | (params_dict.get("grouped_events_sum_map") or {}),
             method="mapvalues",
             kwargs={
                 "argnames": ["geodataframe"],
@@ -2277,12 +2274,12 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("grouped_events_feature_density"),
+                "argvalues": DependsOn("grouped_events_sum_map"),
             },
         ),
-        "sort_grouped_density_values": Node(
+        "sort_grouped_sum_values": Node(
             async_task=sort_values.validate()
-            .set_task_instance_id("sort_grouped_density_values")
+            .set_task_instance_id("sort_grouped_sum_values")
             .handle_errors()
             .with_tracing()
             .skipif(
@@ -2298,7 +2295,7 @@ def main(params: Params):
                 "ascending": True,
                 "na_position": "last",
             }
-            | (params_dict.get("sort_grouped_density_values") or {}),
+            | (params_dict.get("sort_grouped_sum_values") or {}),
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
@@ -2334,7 +2331,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("sort_grouped_density_values"),
+                "argvalues": DependsOn("sort_grouped_sum_values"),
             },
         ),
         "grouped_fd_colormap": Node(
@@ -2387,7 +2384,7 @@ def main(params: Params):
             .set_executor("lithops"),
             partial={
                 "rename_columns": {
-                    "density": "Density",
+                    "density": "Sum",
                 },
                 "raise_if_not_found": True,
             }
@@ -2423,7 +2420,7 @@ def main(params: Params):
                     "color_column": "density_colormap",
                 },
                 "tooltip_columns": [
-                    "Density",
+                    "Sum",
                 ],
             }
             | (params_dict.get("grouped_fd_map_layer") or {}),
@@ -2459,7 +2456,7 @@ def main(params: Params):
                 },
                 "static": False,
                 "max_zoom": 20,
-                "widget_id": DependsOn("set_density_map_title"),
+                "widget_id": DependsOn("set_sum_map_title"),
             }
             | (params_dict.get("grouped_fd_ecomap") or {}),
             method="mapvalues",
@@ -2505,7 +2502,7 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "title": DependsOn("set_density_map_title"),
+                "title": DependsOn("set_sum_map_title"),
             }
             | (params_dict.get("grouped_fd_map_widget") or {}),
             method="map",
