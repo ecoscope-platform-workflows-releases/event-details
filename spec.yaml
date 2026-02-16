@@ -1,10 +1,10 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.22.8
+    version: 0.22.9
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.22.8
+    version: 0.22.9
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
@@ -14,12 +14,19 @@ rjsf-overrides:
     set_event_details_combined.properties.analysis_field.ecoscope:event_type_schema_numeric_prop: properties.set_event_details_combined.properties.event_type
     set_event_details_combined.properties.category_field.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
   $defs:
-    ValueGrouper.oneOf:
+    ValueGrouper.properties.index_name.oneOf:
       - const: Event Category
         title: Event Type Category
       - const: Reported By
         title: Reported By Name
   uiSchema:
+    groupers.groupers.items.anyOf:
+      - ui:options:
+          label: false
+      - ui:options:
+          label: false
+      - ui:options:
+          label: false
     set_event_details_combined.event_types.ui:options.displayLabel: false
     filter_events.filter_point_coords.items.ui:options.label: false
     base_map_defs.base_maps.items.ui:options.label: false
@@ -165,7 +172,7 @@ workflow:
   - name: Group Data
     id: groupers
     task: set_groupers
-  - task: extract_spatial_grouper_feature_group_ids
+  - task: extract_spatial_grouper_feature_group_names
     id: spatial_group_ids
     partial:
       groupers: ${{ workflow.groupers.return }}
@@ -174,7 +181,7 @@ workflow:
     partial:
       client: ${{ workflow.er_client_name.return }}
     map:
-      argnames: spatial_features_group_id
+      argnames: spatial_features_group_name
       argvalues: ${{ workflow.spatial_group_ids.return }}
   - task: resolve_spatial_feature_groups_for_spatial_groupers
     id: resolved_groupers
