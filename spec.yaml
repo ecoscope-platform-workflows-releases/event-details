@@ -1,18 +1,40 @@
 id: event_details
 requirements:
   - name: ecoscope-workflows-core
-    version: 0.22.11
+    version: 0.22.13
     channel: https://repo.prefix.dev/ecoscope-workflows/
   - name: ecoscope-workflows-ext-ecoscope
-    version: 0.22.11
+    version: 0.22.13
     channel: https://repo.prefix.dev/ecoscope-workflows/
 rjsf-overrides:
   properties:
-    set_event_details_combined.properties.event_type.ecoscope:event_type_schema_properties: properties.er_client_name.properties.data_source.properties.name
-    groupers.properties.groupers.ecoscope:spatial_feature_group: properties.er_client_name.properties.data_source.properties.name
-    groupers.properties.groupers.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
-    set_event_details_combined.properties.analysis_field.ecoscope:event_type_schema_numeric_prop: properties.set_event_details_combined.properties.event_type
-    set_event_details_combined.properties.category_field.ecoscope:event_type_schema_choice_prop: properties.set_event_details_combined.properties.event_type
+    set_event_details_combined.properties.event_type.ecoscope:transform:
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: event_type_schema_properties
+          depends_on: properties.er_client_name.properties.data_source.properties.name
+    set_event_details_combined.properties.analysis_field.ecoscope:transform:
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: event_type_schema_numeric_prop
+          depends_on: properties.set_event_details_combined.properties.event_type
+    set_event_details_combined.properties.category_field.ecoscope:transform:
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: event_type_schema_choice_prop
+          depends_on: properties.set_event_details_combined.properties.event_type
+    groupers.properties.groupers.ecoscope:transform:
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: spatial_feature_group
+          depends_on: properties.er_client_name.properties.data_source.properties.name
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: event_type_schema_choice_prop
+          depends_on: properties.set_event_details_combined.properties.event_type
+          fixed_values:
+            Event Category: Event Type Category
+            Reported By: Reported By Name
   $defs:
     ValueGrouper.properties.index_name.oneOf:
       - const: Event Category
