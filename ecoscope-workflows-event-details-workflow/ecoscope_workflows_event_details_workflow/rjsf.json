@@ -74,13 +74,29 @@
         "event_type": {
           "title": "Events Type",
           "type": "string",
-          "ecoscope:event_type_schema_properties": "properties.er_client_name.properties.data_source.properties.name"
+          "ecoscope:transform": [
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "event_type_schema_properties",
+                "depends_on": "properties.er_client_name.properties.data_source.properties.name"
+              }
+            }
+          ]
         },
         "analysis_field": {
           "title": "Analysis Field - Numeric field to analyze",
           "type": "string",
           "description": "Select the numeric field the work will use for calculations, i.e. the sum of the field from all events in the workflow.",
-          "ecoscope:event_type_schema_numeric_prop": "properties.set_event_details_combined.properties.event_type"
+          "ecoscope:transform": [
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "event_type_schema_numeric_prop",
+                "depends_on": "properties.set_event_details_combined.properties.event_type"
+              }
+            }
+          ]
         },
         "analysis_field_label": {
           "title": "Label for analysis data",
@@ -97,7 +113,15 @@
           "title": "Category Field - Choice field to categorize by",
           "type": "string",
           "description": "Differentiate events with the choices in a choice field. Each choice will be represented by a different color in the outputs.",
-          "ecoscope:event_type_schema_choice_prop": "properties.set_event_details_combined.properties.event_type"
+          "ecoscope:transform": [
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "event_type_schema_choice_prop",
+                "depends_on": "properties.set_event_details_combined.properties.event_type"
+              }
+            }
+          ]
         },
         "category_field_label": {
           "default": "",
@@ -142,8 +166,26 @@
           "title": " ",
           "type": "array",
           "description": "            Specify how the data should be grouped to create the views for your dashboard.\n            This field is optional; if left blank, all the data will appear in a single view.\n            ",
-          "ecoscope:spatial_feature_group": "properties.er_client_name.properties.data_source.properties.name",
-          "ecoscope:event_type_schema_choice_prop": "properties.set_event_details_combined.properties.event_type"
+          "ecoscope:transform": [
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "spatial_feature_group",
+                "depends_on": "properties.er_client_name.properties.data_source.properties.name"
+              }
+            },
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "event_type_schema_choice_prop",
+                "depends_on": "properties.set_event_details_combined.properties.event_type",
+                "fixed_values": {
+                  "Event Category": "Event Type Category",
+                  "Reported By": "Reported By Name"
+                }
+              }
+            }
+          ]
         }
       },
       "type": "object",
