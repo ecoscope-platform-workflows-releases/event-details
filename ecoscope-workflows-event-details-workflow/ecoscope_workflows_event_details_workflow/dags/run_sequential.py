@@ -2,170 +2,151 @@
 import json
 import os
 
-from ecoscope_workflows_core.tasks.analysis import dataframe_count as dataframe_count
-from ecoscope_workflows_core.tasks.config import (
-    concat_string_vars as concat_string_vars,
-)
-from ecoscope_workflows_core.tasks.config import (
-    default_if_string_is_empty as default_if_string_is_empty,
-)
-from ecoscope_workflows_core.tasks.config import (
-    get_column_names_from_dataframe as get_column_names_from_dataframe,
-)
-from ecoscope_workflows_core.tasks.config import set_string_var as set_string_var
-from ecoscope_workflows_core.tasks.config import (
-    set_workflow_details as set_workflow_details,
-)
-from ecoscope_workflows_core.tasks.filter import (
-    get_timezone_from_time_range as get_timezone_from_time_range,
-)
-from ecoscope_workflows_core.tasks.filter import set_time_range as set_time_range
-from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
-from ecoscope_workflows_core.tasks.groupby import split_groups as split_groups
-from ecoscope_workflows_core.tasks.io import persist_text as persist_text
-from ecoscope_workflows_core.tasks.io import set_er_connection as set_er_connection
-from ecoscope_workflows_core.tasks.results import (
-    create_map_widget_single_view as create_map_widget_single_view,
-)
-from ecoscope_workflows_core.tasks.results import (
-    create_plot_widget_single_view as create_plot_widget_single_view,
-)
-from ecoscope_workflows_core.tasks.results import (
-    create_single_value_widget_single_view as create_single_value_widget_single_view,
-)
-from ecoscope_workflows_core.tasks.results import (
-    create_table_widget_single_view as create_table_widget_single_view,
-)
-from ecoscope_workflows_core.tasks.results import gather_dashboard as gather_dashboard
-from ecoscope_workflows_core.tasks.results import (
-    merge_widget_views as merge_widget_views,
-)
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_is_empty_string as any_dependency_is_empty_string,
-)
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_is_none as any_dependency_is_none,
-)
-from ecoscope_workflows_core.tasks.skip import (
-    any_dependency_skipped as any_dependency_skipped,
-)
-from ecoscope_workflows_core.tasks.skip import any_is_empty_df as any_is_empty_df
-from ecoscope_workflows_core.tasks.skip import never as never
-from ecoscope_workflows_core.tasks.transformation import (
-    add_temporal_index as add_temporal_index,
-)
-from ecoscope_workflows_core.tasks.transformation import assign_value as assign_value
-from ecoscope_workflows_core.tasks.transformation import (
-    convert_column_values_to_numeric as convert_column_values_to_numeric,
-)
-from ecoscope_workflows_core.tasks.transformation import (
-    convert_values_to_timezone as convert_values_to_timezone,
-)
-from ecoscope_workflows_core.tasks.transformation import (
-    extract_value_from_json_column as extract_value_from_json_column,
-)
-from ecoscope_workflows_core.tasks.transformation import fill_na as fill_na
-from ecoscope_workflows_core.tasks.transformation import (
-    lookup_string_var as lookup_string_var,
-)
-from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
-from ecoscope_workflows_core.tasks.transformation import map_values as map_values
-from ecoscope_workflows_core.tasks.transformation import (
-    reorder_columns as reorder_columns,
-)
-from ecoscope_workflows_core.tasks.transformation import sort_values as sort_values
-from ecoscope_workflows_core.tasks.transformation import (
-    strip_prefix_from_column_names as strip_prefix_from_column_names,
-)
-from ecoscope_workflows_core.tasks.transformation import transpose as transpose
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
+from ecoscope.platform.tasks.analysis import (
     calculate_feature_density as calculate_feature_density,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
-    create_meshgrid as create_meshgrid,
+from ecoscope.platform.tasks.analysis import create_meshgrid as create_meshgrid
+from ecoscope.platform.tasks.analysis import dataframe_count as dataframe_count
+from ecoscope.platform.tasks.analysis import summarize_df as summarize_df
+from ecoscope.platform.tasks.config import concat_string_vars as concat_string_vars
+from ecoscope.platform.tasks.config import (
+    default_if_string_is_empty as default_if_string_is_empty,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import summarize_df as summarize_df
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.config import (
+    get_column_names_from_dataframe as get_column_names_from_dataframe,
+)
+from ecoscope.platform.tasks.config import set_string_var as set_string_var
+from ecoscope.platform.tasks.config import set_workflow_details as set_workflow_details
+from ecoscope.platform.tasks.filter import (
+    get_timezone_from_time_range as get_timezone_from_time_range,
+)
+from ecoscope.platform.tasks.filter import set_time_range as set_time_range
+from ecoscope.platform.tasks.groupby import set_groupers as set_groupers
+from ecoscope.platform.tasks.groupby import split_groups as split_groups
+from ecoscope.platform.tasks.io import (
     get_analysis_field_from_event_details as get_analysis_field_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_analysis_field_label_from_event_details as get_analysis_field_label_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_analysis_field_unit_from_event_details as get_analysis_field_unit_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_category_field_from_event_details as get_category_field_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_category_field_label_from_event_details as get_category_field_label_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_choices_from_v2_event_type as get_choices_from_v2_event_type,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_event_type_from_event_details as get_event_type_from_event_details,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_events_from_combined_params as get_events_from_combined_params,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_fields_from_event_type_schema as get_fields_from_event_type_schema,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import (
     get_spatial_features_group as get_spatial_features_group,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.io import (
+from ecoscope.platform.tasks.io import persist_text as persist_text
+from ecoscope.platform.tasks.io import set_er_connection as set_er_connection
+from ecoscope.platform.tasks.io import (
     set_event_details_params as set_event_details_params,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import (
-    create_point_layer as create_point_layer,
+from ecoscope.platform.tasks.results import (
+    create_map_widget_single_view as create_map_widget_single_view,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import (
-    create_polygon_layer as create_polygon_layer,
+from ecoscope.platform.tasks.results import (
+    create_plot_widget_single_view as create_plot_widget_single_view,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import draw_ecomap as draw_ecomap
-from ecoscope_workflows_ext_ecoscope.tasks.results import (
-    draw_pie_chart as draw_pie_chart,
+from ecoscope.platform.tasks.results import create_point_layer as create_point_layer
+from ecoscope.platform.tasks.results import create_polygon_layer as create_polygon_layer
+from ecoscope.platform.tasks.results import (
+    create_single_value_widget_single_view as create_single_value_widget_single_view,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import draw_table as draw_table
-from ecoscope_workflows_ext_ecoscope.tasks.results import (
+from ecoscope.platform.tasks.results import (
+    create_table_widget_single_view as create_table_widget_single_view,
+)
+from ecoscope.platform.tasks.results import draw_ecomap as draw_ecomap
+from ecoscope.platform.tasks.results import draw_pie_chart as draw_pie_chart
+from ecoscope.platform.tasks.results import draw_table as draw_table
+from ecoscope.platform.tasks.results import (
     draw_time_series_bar_chart as draw_time_series_bar_chart,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import set_base_maps as set_base_maps
-from ecoscope_workflows_ext_ecoscope.tasks.skip import (
-    all_geometry_are_none as all_geometry_are_none,
+from ecoscope.platform.tasks.results import gather_dashboard as gather_dashboard
+from ecoscope.platform.tasks.results import merge_widget_views as merge_widget_views
+from ecoscope.platform.tasks.results import set_base_maps as set_base_maps
+from ecoscope.platform.tasks.skip import all_geometry_are_none as all_geometry_are_none
+from ecoscope.platform.tasks.skip import (
+    any_dependency_is_empty_string as any_dependency_is_empty_string,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.skip import (
+    any_dependency_is_none as any_dependency_is_none,
+)
+from ecoscope.platform.tasks.skip import (
+    any_dependency_skipped as any_dependency_skipped,
+)
+from ecoscope.platform.tasks.skip import any_is_empty_df as any_is_empty_df
+from ecoscope.platform.tasks.skip import never as never
+from ecoscope.platform.tasks.transformation import (
     add_spatial_index as add_spatial_index,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import (
+    add_temporal_index as add_temporal_index,
+)
+from ecoscope.platform.tasks.transformation import (
     apply_classification as apply_classification,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
-    apply_color_map as apply_color_map,
-)
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import apply_color_map as apply_color_map
+from ecoscope.platform.tasks.transformation import (
     apply_reloc_coord_filter as apply_reloc_coord_filter,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import assign_value as assign_value
+from ecoscope.platform.tasks.transformation import (
+    convert_column_values_to_numeric as convert_column_values_to_numeric,
+)
+from ecoscope.platform.tasks.transformation import (
+    convert_values_to_timezone as convert_values_to_timezone,
+)
+from ecoscope.platform.tasks.transformation import (
     drop_nan_values_by_column as drop_nan_values_by_column,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import (
     drop_null_geometry as drop_null_geometry,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import (
     extract_spatial_grouper_feature_group_names as extract_spatial_grouper_feature_group_names,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import (
+    extract_value_from_json_column as extract_value_from_json_column,
+)
+from ecoscope.platform.tasks.transformation import fill_na as fill_na
+from ecoscope.platform.tasks.transformation import (
+    lookup_string_var as lookup_string_var,
+)
+from ecoscope.platform.tasks.transformation import map_columns as map_columns
+from ecoscope.platform.tasks.transformation import map_values as map_values
+from ecoscope.platform.tasks.transformation import (
     normalize_json_column as normalize_json_column,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import (
     normalize_numeric_column as normalize_numeric_column,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.transformation import (
+from ecoscope.platform.tasks.transformation import reorder_columns as reorder_columns
+from ecoscope.platform.tasks.transformation import (
     resolve_spatial_feature_groups_for_spatial_groupers as resolve_spatial_feature_groups_for_spatial_groupers,
 )
+from ecoscope.platform.tasks.transformation import sort_values as sort_values
+from ecoscope.platform.tasks.transformation import (
+    strip_prefix_from_column_names as strip_prefix_from_column_names,
+)
+from ecoscope.platform.tasks.transformation import transpose as transpose
+from wt_task import task
 
 from ..params import Params
 
@@ -174,7 +155,8 @@ def main(params: Params):
     params_dict = json.loads(params.model_dump_json(exclude_unset=True))
 
     workflow_details = (
-        set_workflow_details.validate()
+        task(set_workflow_details)
+        .validate()
         .set_task_instance_id("workflow_details")
         .handle_errors()
         .with_tracing()
@@ -190,7 +172,8 @@ def main(params: Params):
     )
 
     er_client_name = (
-        set_er_connection.validate()
+        task(set_er_connection)
+        .validate()
         .set_task_instance_id("er_client_name")
         .handle_errors()
         .with_tracing()
@@ -206,7 +189,8 @@ def main(params: Params):
     )
 
     time_range = (
-        set_time_range.validate()
+        task(set_time_range)
+        .validate()
         .set_task_instance_id("time_range")
         .handle_errors()
         .with_tracing()
@@ -224,7 +208,8 @@ def main(params: Params):
     )
 
     get_timezone = (
-        get_timezone_from_time_range.validate()
+        task(get_timezone_from_time_range)
+        .validate()
         .set_task_instance_id("get_timezone")
         .handle_errors()
         .with_tracing()
@@ -240,7 +225,8 @@ def main(params: Params):
     )
 
     set_event_details_combined = (
-        set_event_details_params.validate()
+        task(set_event_details_params)
+        .validate()
         .set_task_instance_id("set_event_details_combined")
         .handle_errors()
         .with_tracing()
@@ -276,7 +262,8 @@ def main(params: Params):
     )
 
     analysis_field = (
-        get_analysis_field_from_event_details.validate()
+        task(get_analysis_field_from_event_details)
+        .validate()
         .set_task_instance_id("analysis_field")
         .handle_errors()
         .with_tracing()
@@ -295,7 +282,8 @@ def main(params: Params):
     )
 
     analysis_field_label = (
-        get_analysis_field_label_from_event_details.validate()
+        task(get_analysis_field_label_from_event_details)
+        .validate()
         .set_task_instance_id("analysis_field_label")
         .handle_errors()
         .with_tracing()
@@ -314,7 +302,8 @@ def main(params: Params):
     )
 
     analysis_field_unit = (
-        get_analysis_field_unit_from_event_details.validate()
+        task(get_analysis_field_unit_from_event_details)
+        .validate()
         .set_task_instance_id("analysis_field_unit")
         .handle_errors()
         .with_tracing()
@@ -333,7 +322,8 @@ def main(params: Params):
     )
 
     category_field = (
-        get_category_field_from_event_details.validate()
+        task(get_category_field_from_event_details)
+        .validate()
         .set_task_instance_id("category_field")
         .handle_errors()
         .with_tracing()
@@ -351,7 +341,8 @@ def main(params: Params):
     )
 
     category_field_label = (
-        get_category_field_label_from_event_details.validate()
+        task(get_category_field_label_from_event_details)
+        .validate()
         .set_task_instance_id("category_field_label")
         .handle_errors()
         .with_tracing()
@@ -369,7 +360,8 @@ def main(params: Params):
     )
 
     event_type = (
-        get_event_type_from_event_details.validate()
+        task(get_event_type_from_event_details)
+        .validate()
         .set_task_instance_id("event_type")
         .handle_errors()
         .with_tracing()
@@ -388,7 +380,8 @@ def main(params: Params):
     )
 
     get_events_data = (
-        get_events_from_combined_params.validate()
+        task(get_events_from_combined_params)
+        .validate()
         .set_task_instance_id("get_events_data")
         .handle_errors()
         .with_tracing()
@@ -407,7 +400,8 @@ def main(params: Params):
     )
 
     get_event_schema_display_names = (
-        get_fields_from_event_type_schema.validate()
+        task(get_fields_from_event_type_schema)
+        .validate()
         .set_task_instance_id("get_event_schema_display_names")
         .handle_errors()
         .with_tracing()
@@ -427,7 +421,8 @@ def main(params: Params):
     )
 
     get_category_display_names = (
-        get_choices_from_v2_event_type.validate()
+        task(get_choices_from_v2_event_type)
+        .validate()
         .set_task_instance_id("get_category_display_names")
         .handle_errors()
         .with_tracing()
@@ -448,7 +443,8 @@ def main(params: Params):
     )
 
     convert_to_user_timezone = (
-        convert_values_to_timezone.validate()
+        task(convert_values_to_timezone)
+        .validate()
         .set_task_instance_id("convert_to_user_timezone")
         .handle_errors()
         .with_tracing()
@@ -469,7 +465,8 @@ def main(params: Params):
     )
 
     extract_latitude = (
-        extract_value_from_json_column.validate()
+        task(extract_value_from_json_column)
+        .validate()
         .set_task_instance_id("extract_latitude")
         .handle_errors()
         .with_tracing()
@@ -492,7 +489,8 @@ def main(params: Params):
     )
 
     extract_longitude = (
-        extract_value_from_json_column.validate()
+        task(extract_value_from_json_column)
+        .validate()
         .set_task_instance_id("extract_longitude")
         .handle_errors()
         .with_tracing()
@@ -515,7 +513,8 @@ def main(params: Params):
     )
 
     extract_reported_by = (
-        extract_value_from_json_column.validate()
+        task(extract_value_from_json_column)
+        .validate()
         .set_task_instance_id("extract_reported_by")
         .handle_errors()
         .with_tracing()
@@ -538,7 +537,8 @@ def main(params: Params):
     )
 
     groupers = (
-        set_groupers.validate()
+        task(set_groupers)
+        .validate()
         .set_task_instance_id("groupers")
         .handle_errors()
         .with_tracing()
@@ -554,7 +554,8 @@ def main(params: Params):
     )
 
     spatial_group_ids = (
-        extract_spatial_grouper_feature_group_names.validate()
+        task(extract_spatial_grouper_feature_group_names)
+        .validate()
         .set_task_instance_id("spatial_group_ids")
         .handle_errors()
         .with_tracing()
@@ -570,7 +571,8 @@ def main(params: Params):
     )
 
     fetch_all_spatial_feature_groups = (
-        get_spatial_features_group.validate()
+        task(get_spatial_features_group)
+        .validate()
         .set_task_instance_id("fetch_all_spatial_feature_groups")
         .handle_errors()
         .with_tracing()
@@ -589,7 +591,8 @@ def main(params: Params):
     )
 
     resolved_groupers = (
-        resolve_spatial_feature_groups_for_spatial_groupers.validate()
+        task(resolve_spatial_feature_groups_for_spatial_groupers)
+        .validate()
         .set_task_instance_id("resolved_groupers")
         .handle_errors()
         .with_tracing()
@@ -608,7 +611,8 @@ def main(params: Params):
     )
 
     filter_events = (
-        apply_reloc_coord_filter.validate()
+        task(apply_reloc_coord_filter)
+        .validate()
         .set_task_instance_id("filter_events")
         .handle_errors()
         .with_tracing()
@@ -630,7 +634,8 @@ def main(params: Params):
     )
 
     normalize_event_details = (
-        normalize_json_column.validate()
+        task(normalize_json_column)
+        .validate()
         .set_task_instance_id("normalize_event_details")
         .handle_errors()
         .with_tracing()
@@ -652,7 +657,8 @@ def main(params: Params):
     )
 
     strip_event_details_prefix = (
-        strip_prefix_from_column_names.validate()
+        task(strip_prefix_from_column_names)
+        .validate()
         .set_task_instance_id("strip_event_details_prefix")
         .handle_errors()
         .with_tracing()
@@ -672,7 +678,8 @@ def main(params: Params):
     )
 
     events_add_temporal_index = (
-        add_temporal_index.validate()
+        task(add_temporal_index)
+        .validate()
         .set_task_instance_id("events_add_temporal_index")
         .handle_errors()
         .with_tracing()
@@ -695,7 +702,8 @@ def main(params: Params):
     )
 
     events_add_spatial_index = (
-        add_spatial_index.validate()
+        task(add_spatial_index)
+        .validate()
         .set_task_instance_id("events_add_spatial_index")
         .handle_errors()
         .with_tracing()
@@ -715,7 +723,8 @@ def main(params: Params):
     )
 
     add_default_category_column = (
-        assign_value.validate()
+        task(assign_value)
+        .validate()
         .set_task_instance_id("add_default_category_column")
         .handle_errors()
         .with_tracing()
@@ -737,7 +746,8 @@ def main(params: Params):
     )
 
     default_category_field = (
-        default_if_string_is_empty.validate()
+        task(default_if_string_is_empty)
+        .validate()
         .set_task_instance_id("default_category_field")
         .handle_errors()
         .with_tracing()
@@ -757,7 +767,8 @@ def main(params: Params):
     )
 
     category_field_label_or_category = (
-        default_if_string_is_empty.validate()
+        task(default_if_string_is_empty)
+        .validate()
         .set_task_instance_id("category_field_label_or_category")
         .handle_errors()
         .with_tracing()
@@ -777,7 +788,8 @@ def main(params: Params):
     )
 
     default_category_field_label = (
-        default_if_string_is_empty.validate()
+        task(default_if_string_is_empty)
+        .validate()
         .set_task_instance_id("default_category_field_label")
         .handle_errors()
         .with_tracing()
@@ -797,7 +809,8 @@ def main(params: Params):
     )
 
     ensure_analysis_column = (
-        assign_value.validate()
+        task(assign_value)
+        .validate()
         .set_task_instance_id("ensure_analysis_column")
         .handle_errors()
         .with_tracing()
@@ -819,7 +832,8 @@ def main(params: Params):
     )
 
     ensure_category_column = (
-        assign_value.validate()
+        task(assign_value)
+        .validate()
         .set_task_instance_id("ensure_category_column")
         .handle_errors()
         .with_tracing()
@@ -841,7 +855,8 @@ def main(params: Params):
     )
 
     analysis_field_display_name = (
-        lookup_string_var.validate()
+        task(lookup_string_var)
+        .validate()
         .set_task_instance_id("analysis_field_display_name")
         .handle_errors()
         .with_tracing()
@@ -862,7 +877,8 @@ def main(params: Params):
     )
 
     category_field_display_name = (
-        lookup_string_var.validate()
+        task(lookup_string_var)
+        .validate()
         .set_task_instance_id("category_field_display_name")
         .handle_errors()
         .with_tracing()
@@ -883,7 +899,8 @@ def main(params: Params):
     )
 
     map_display_names = (
-        map_values.validate()
+        task(map_values)
+        .validate()
         .set_task_instance_id("map_display_names")
         .handle_errors()
         .with_tracing()
@@ -906,7 +923,8 @@ def main(params: Params):
     )
 
     convert_na_values = (
-        fill_na.validate()
+        task(fill_na)
+        .validate()
         .set_task_instance_id("convert_na_values")
         .handle_errors()
         .with_tracing()
@@ -927,7 +945,8 @@ def main(params: Params):
     )
 
     rename_columns = (
-        map_columns.validate()
+        task(map_columns)
+        .validate()
         .set_task_instance_id("rename_columns")
         .handle_errors()
         .with_tracing()
@@ -957,7 +976,8 @@ def main(params: Params):
     )
 
     column_display_order = (
-        reorder_columns.validate()
+        task(reorder_columns)
+        .validate()
         .set_task_instance_id("column_display_order")
         .handle_errors()
         .with_tracing()
@@ -983,7 +1003,8 @@ def main(params: Params):
     )
 
     events_table_columns = (
-        get_column_names_from_dataframe.validate()
+        task(get_column_names_from_dataframe)
+        .validate()
         .set_task_instance_id("events_table_columns")
         .handle_errors()
         .with_tracing()
@@ -1010,7 +1031,8 @@ def main(params: Params):
     )
 
     events_table_display_columns = (
-        lookup_string_var.validate()
+        task(lookup_string_var)
+        .validate()
         .set_task_instance_id("events_table_display_columns")
         .handle_errors()
         .with_tracing()
@@ -1030,7 +1052,8 @@ def main(params: Params):
     )
 
     ensure_numeric = (
-        convert_column_values_to_numeric.validate()
+        task(convert_column_values_to_numeric)
+        .validate()
         .set_task_instance_id("ensure_numeric")
         .handle_errors()
         .with_tracing()
@@ -1050,7 +1073,8 @@ def main(params: Params):
     )
 
     events_colormap = (
-        apply_color_map.validate()
+        task(apply_color_map)
+        .validate()
         .set_task_instance_id("events_colormap")
         .handle_errors()
         .with_tracing()
@@ -1088,7 +1112,8 @@ def main(params: Params):
     )
 
     set_summary_table_title = (
-        set_string_var.validate()
+        task(set_string_var)
+        .validate()
         .set_task_instance_id("set_summary_table_title")
         .handle_errors()
         .with_tracing()
@@ -1107,7 +1132,8 @@ def main(params: Params):
     )
 
     by_category_field_str = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("by_category_field_str")
         .handle_errors()
         .with_tracing()
@@ -1125,7 +1151,8 @@ def main(params: Params):
     )
 
     pie_chart_title_pt1 = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("pie_chart_title_pt1")
         .handle_errors()
         .with_tracing()
@@ -1144,7 +1171,8 @@ def main(params: Params):
     )
 
     set_pie_chart_title = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("set_pie_chart_title")
         .handle_errors()
         .with_tracing()
@@ -1162,7 +1190,8 @@ def main(params: Params):
     )
 
     set_events_map_title = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("set_events_map_title")
         .handle_errors()
         .with_tracing()
@@ -1180,7 +1209,8 @@ def main(params: Params):
     )
 
     set_bar_chart_title = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("set_bar_chart_title")
         .handle_errors()
         .with_tracing()
@@ -1198,7 +1228,8 @@ def main(params: Params):
     )
 
     set_sum_map_title = (
-        concat_string_vars.validate()
+        task(concat_string_vars)
+        .validate()
         .set_task_instance_id("set_sum_map_title")
         .handle_errors()
         .with_tracing()
@@ -1217,7 +1248,8 @@ def main(params: Params):
     )
 
     set_events_table_title = (
-        set_string_var.validate()
+        task(set_string_var)
+        .validate()
         .set_task_instance_id("set_events_table_title")
         .handle_errors()
         .with_tracing()
@@ -1235,7 +1267,8 @@ def main(params: Params):
     )
 
     split_event_groups = (
-        split_groups.validate()
+        task(split_groups)
+        .validate()
         .set_task_instance_id("split_event_groups")
         .handle_errors()
         .with_tracing()
@@ -1255,7 +1288,8 @@ def main(params: Params):
     )
 
     display_table = (
-        map_columns.validate()
+        task(map_columns)
+        .validate()
         .set_task_instance_id("display_table")
         .handle_errors()
         .with_tracing()
@@ -1277,7 +1311,8 @@ def main(params: Params):
     )
 
     drop_nan_values = (
-        drop_nan_values_by_column.validate()
+        task(drop_nan_values_by_column)
+        .validate()
         .set_task_instance_id("drop_nan_values")
         .handle_errors()
         .with_tracing()
@@ -1296,7 +1331,8 @@ def main(params: Params):
     )
 
     base_map_defs = (
-        set_base_maps.validate()
+        task(set_base_maps)
+        .validate()
         .set_task_instance_id("base_map_defs")
         .handle_errors()
         .with_tracing()
@@ -1312,7 +1348,8 @@ def main(params: Params):
     )
 
     total_events = (
-        dataframe_count.validate()
+        task(dataframe_count)
+        .validate()
         .set_task_instance_id("total_events")
         .handle_errors()
         .with_tracing()
@@ -1328,7 +1365,8 @@ def main(params: Params):
     )
 
     total_events_sv_widget = (
-        create_single_value_widget_single_view.validate()
+        task(create_single_value_widget_single_view)
+        .validate()
         .set_task_instance_id("total_events_sv_widget")
         .handle_errors()
         .with_tracing()
@@ -1347,7 +1385,8 @@ def main(params: Params):
     )
 
     total_events_grouped_sv_widget = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("total_events_grouped_sv_widget")
         .handle_errors()
         .with_tracing()
@@ -1366,7 +1405,8 @@ def main(params: Params):
     )
 
     grouped_event_summary = (
-        summarize_df.validate()
+        task(summarize_df)
+        .validate()
         .set_task_instance_id("grouped_event_summary")
         .handle_errors()
         .with_tracing()
@@ -1413,7 +1453,8 @@ def main(params: Params):
     )
 
     transpose_table = (
-        transpose.validate()
+        task(transpose)
+        .validate()
         .set_task_instance_id("transpose_table")
         .handle_errors()
         .with_tracing()
@@ -1432,7 +1473,8 @@ def main(params: Params):
     )
 
     rename_summary_columns = (
-        map_columns.validate()
+        task(map_columns)
+        .validate()
         .set_task_instance_id("rename_summary_columns")
         .handle_errors()
         .with_tracing()
@@ -1454,7 +1496,8 @@ def main(params: Params):
     )
 
     summary_table = (
-        draw_table.validate()
+        task(draw_table)
+        .validate()
         .set_task_instance_id("summary_table")
         .handle_errors()
         .with_tracing()
@@ -1480,7 +1523,8 @@ def main(params: Params):
     )
 
     summary_html_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("summary_html_urls")
         .handle_errors()
         .with_tracing()
@@ -1500,7 +1544,8 @@ def main(params: Params):
     )
 
     summary_table_single_views = (
-        create_table_widget_single_view.validate()
+        task(create_table_widget_single_view)
+        .validate()
         .set_task_instance_id("summary_table_single_views")
         .handle_errors()
         .with_tracing()
@@ -1518,7 +1563,8 @@ def main(params: Params):
     )
 
     grouped_summary_table_widget = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_summary_table_widget")
         .handle_errors()
         .with_tracing()
@@ -1537,7 +1583,8 @@ def main(params: Params):
     )
 
     grouped_events_pie_chart = (
-        draw_pie_chart.validate()
+        task(draw_pie_chart)
+        .validate()
         .set_task_instance_id("grouped_events_pie_chart")
         .handle_errors()
         .with_tracing()
@@ -1561,7 +1608,8 @@ def main(params: Params):
     )
 
     grouped_pie_chart_html_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("grouped_pie_chart_html_urls")
         .handle_errors()
         .with_tracing()
@@ -1581,7 +1629,8 @@ def main(params: Params):
     )
 
     grouped_events_pie_chart_widgets = (
-        create_plot_widget_single_view.validate()
+        task(create_plot_widget_single_view)
+        .validate()
         .set_task_instance_id("grouped_events_pie_chart_widgets")
         .handle_errors()
         .with_tracing()
@@ -1599,7 +1648,8 @@ def main(params: Params):
     )
 
     grouped_events_pie_widget_merge = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_events_pie_widget_merge")
         .handle_errors()
         .with_tracing()
@@ -1618,7 +1668,8 @@ def main(params: Params):
     )
 
     normalize_analysis_field = (
-        normalize_numeric_column.validate()
+        task(normalize_numeric_column)
+        .validate()
         .set_task_instance_id("normalize_analysis_field")
         .handle_errors()
         .with_tracing()
@@ -1638,7 +1689,8 @@ def main(params: Params):
     )
 
     drop_empty_geometry = (
-        drop_null_geometry.validate()
+        task(drop_null_geometry)
+        .validate()
         .set_task_instance_id("drop_empty_geometry")
         .handle_errors()
         .with_tracing()
@@ -1654,7 +1706,8 @@ def main(params: Params):
     )
 
     grouped_events_map_layer = (
-        create_point_layer.validate()
+        task(create_point_layer)
+        .validate()
         .set_task_instance_id("grouped_events_map_layer")
         .handle_errors()
         .with_tracing()
@@ -1690,7 +1743,8 @@ def main(params: Params):
     )
 
     grouped_events_ecomap = (
-        draw_ecomap.validate()
+        task(draw_ecomap)
+        .validate()
         .set_task_instance_id("grouped_events_ecomap")
         .handle_errors()
         .with_tracing()
@@ -1719,7 +1773,8 @@ def main(params: Params):
     )
 
     grouped_events_ecomap_html_url = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("grouped_events_ecomap_html_url")
         .handle_errors()
         .with_tracing()
@@ -1739,7 +1794,8 @@ def main(params: Params):
     )
 
     grouped_events_map_widget = (
-        create_map_widget_single_view.validate()
+        task(create_map_widget_single_view)
+        .validate()
         .set_task_instance_id("grouped_events_map_widget")
         .handle_errors()
         .with_tracing()
@@ -1757,7 +1813,8 @@ def main(params: Params):
     )
 
     grouped_events_map_widget_merge = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_events_map_widget_merge")
         .handle_errors()
         .with_tracing()
@@ -1776,7 +1833,8 @@ def main(params: Params):
     )
 
     events_bar_chart = (
-        draw_time_series_bar_chart.validate()
+        task(draw_time_series_bar_chart)
+        .validate()
         .set_task_instance_id("events_bar_chart")
         .handle_errors()
         .with_tracing()
@@ -1802,7 +1860,8 @@ def main(params: Params):
     )
 
     events_bar_chart_html_url = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("events_bar_chart_html_url")
         .handle_errors()
         .with_tracing()
@@ -1822,7 +1881,8 @@ def main(params: Params):
     )
 
     events_bar_chart_widget = (
-        create_plot_widget_single_view.validate()
+        task(create_plot_widget_single_view)
+        .validate()
         .set_task_instance_id("events_bar_chart_widget")
         .handle_errors()
         .with_tracing()
@@ -1840,7 +1900,8 @@ def main(params: Params):
     )
 
     grouped_bar_plot_widget_merge = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_bar_plot_widget_merge")
         .handle_errors()
         .with_tracing()
@@ -1859,7 +1920,8 @@ def main(params: Params):
     )
 
     events_meshgrid = (
-        create_meshgrid.validate()
+        task(create_meshgrid)
+        .validate()
         .set_task_instance_id("events_meshgrid")
         .handle_errors()
         .with_tracing()
@@ -1880,7 +1942,8 @@ def main(params: Params):
     )
 
     grouped_events_sum_map = (
-        calculate_feature_density.validate()
+        task(calculate_feature_density)
+        .validate()
         .set_task_instance_id("grouped_events_sum_map")
         .handle_errors()
         .with_tracing()
@@ -1901,7 +1964,8 @@ def main(params: Params):
     )
 
     drop_nan_percentiles = (
-        drop_nan_values_by_column.validate()
+        task(drop_nan_values_by_column)
+        .validate()
         .set_task_instance_id("drop_nan_percentiles")
         .handle_errors()
         .with_tracing()
@@ -1919,7 +1983,8 @@ def main(params: Params):
     )
 
     sort_grouped_sum_values = (
-        sort_values.validate()
+        task(sort_values)
+        .validate()
         .set_task_instance_id("sort_grouped_sum_values")
         .handle_errors()
         .with_tracing()
@@ -1940,7 +2005,8 @@ def main(params: Params):
     )
 
     classify_fd = (
-        apply_classification.validate()
+        task(apply_classification)
+        .validate()
         .set_task_instance_id("classify_fd")
         .handle_errors()
         .with_tracing()
@@ -1962,7 +2028,8 @@ def main(params: Params):
     )
 
     grouped_fd_colormap = (
-        apply_color_map.validate()
+        task(apply_color_map)
+        .validate()
         .set_task_instance_id("grouped_fd_colormap")
         .handle_errors()
         .with_tracing()
@@ -1993,7 +2060,8 @@ def main(params: Params):
     )
 
     fd_rename_columns = (
-        map_columns.validate()
+        task(map_columns)
+        .validate()
         .set_task_instance_id("fd_rename_columns")
         .handle_errors()
         .with_tracing()
@@ -2015,7 +2083,8 @@ def main(params: Params):
     )
 
     grouped_fd_map_layer = (
-        create_polygon_layer.validate()
+        task(create_polygon_layer)
+        .validate()
         .set_task_instance_id("grouped_fd_map_layer")
         .handle_errors()
         .with_tracing()
@@ -2041,7 +2110,8 @@ def main(params: Params):
     )
 
     grouped_fd_ecomap = (
-        draw_ecomap.validate()
+        task(draw_ecomap)
+        .validate()
         .set_task_instance_id("grouped_fd_ecomap")
         .handle_errors()
         .with_tracing()
@@ -2070,7 +2140,8 @@ def main(params: Params):
     )
 
     grouped_fd_ecomap_html_url = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("grouped_fd_ecomap_html_url")
         .handle_errors()
         .with_tracing()
@@ -2090,7 +2161,8 @@ def main(params: Params):
     )
 
     grouped_fd_map_widget = (
-        create_map_widget_single_view.validate()
+        task(create_map_widget_single_view)
+        .validate()
         .set_task_instance_id("grouped_fd_map_widget")
         .handle_errors()
         .with_tracing()
@@ -2107,7 +2179,8 @@ def main(params: Params):
     )
 
     grouped_fd_map_widget_merge = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_fd_map_widget_merge")
         .handle_errors()
         .with_tracing()
@@ -2126,7 +2199,8 @@ def main(params: Params):
     )
 
     events_table = (
-        draw_table.validate()
+        task(draw_table)
+        .validate()
         .set_task_instance_id("events_table")
         .handle_errors()
         .with_tracing()
@@ -2152,7 +2226,8 @@ def main(params: Params):
     )
 
     table_html_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("table_html_urls")
         .handle_errors()
         .with_tracing()
@@ -2172,7 +2247,8 @@ def main(params: Params):
     )
 
     events_table_single_views = (
-        create_table_widget_single_view.validate()
+        task(create_table_widget_single_view)
+        .validate()
         .set_task_instance_id("events_table_single_views")
         .handle_errors()
         .with_tracing()
@@ -2190,7 +2266,8 @@ def main(params: Params):
     )
 
     grouped_table_widget = (
-        merge_widget_views.validate()
+        task(merge_widget_views)
+        .validate()
         .set_task_instance_id("grouped_table_widget")
         .handle_errors()
         .with_tracing()
@@ -2209,7 +2286,8 @@ def main(params: Params):
     )
 
     events_dashboard = (
-        gather_dashboard.validate()
+        task(gather_dashboard)
+        .validate()
         .set_task_instance_id("events_dashboard")
         .handle_errors()
         .with_tracing()
