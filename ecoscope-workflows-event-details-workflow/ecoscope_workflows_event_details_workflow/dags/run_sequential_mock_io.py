@@ -7,9 +7,9 @@ Lines specific to the testing context are marked with a test tube emoji (🧪) t
 that they would not be included (or would be different) in the production version of this file.
 """
 
-import json
 import os
 import warnings  # 🧪
+from typing import Any
 
 from ecoscope.platform.tasks.config import set_workflow_details as set_workflow_details
 from ecoscope.platform.tasks.filter import (
@@ -45,8 +45,11 @@ from ecoscope.platform.tasks.skip import (
     any_dependency_skipped as any_dependency_skipped,
 )
 from ecoscope.platform.tasks.skip import any_is_empty_df as any_is_empty_df
+from wt_contracts import validate as _validate
 from wt_task import task
 from wt_task.testing import create_func_magicmock  # 🧪
+
+from .. import metadata as _metadata
 
 get_events_from_combined_params = create_func_magicmock(  # 🧪
     anchor="ecoscope.platform.tasks.io",  # 🧪
@@ -166,13 +169,12 @@ from ecoscope.platform.tasks.transformation import (
 )
 from ecoscope.platform.tasks.transformation import transpose as transpose
 
-from ..params import Params
 
-
-def main(params: Params):
+def main(params: dict[str, Any], validate_params_schema: bool = True):
     warnings.warn("This test script should not be used in production!")  # 🧪
 
-    params_dict = json.loads(params.model_dump_json(exclude_unset=True))
+    if validate_params_schema:
+        _validate(params, _metadata.load_params_schema())
 
     workflow_details = (
         task(set_workflow_details)
@@ -187,7 +189,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("workflow_details") or {}))
+        .partial(**(params.get("workflow_details") or {}))
         .call()
     )
 
@@ -204,7 +206,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("er_client_name") or {}))
+        .partial(**(params.get("er_client_name") or {}))
         .call()
     )
 
@@ -221,9 +223,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            time_format="%d %b %Y %H:%M:%S", **(params_dict.get("time_range") or {})
-        )
+        .partial(time_format="%d %b %Y %H:%M:%S", **(params.get("time_range") or {}))
         .call()
     )
 
@@ -240,7 +240,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(time_range=time_range, **(params_dict.get("get_timezone") or {}))
+        .partial(time_range=time_range, **(params.get("get_timezone") or {}))
         .call()
     )
 
@@ -276,7 +276,7 @@ def main(params: Params):
             include_updates=False,
             include_related_events=False,
             include_display_values=False,
-            **(params_dict.get("set_event_details_combined") or {}),
+            **(params.get("set_event_details_combined") or {}),
         )
         .call()
     )
@@ -296,7 +296,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field") or {}),
+            **(params.get("analysis_field") or {}),
         )
         .call()
     )
@@ -316,7 +316,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field_label") or {}),
+            **(params.get("analysis_field_label") or {}),
         )
         .call()
     )
@@ -336,7 +336,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("analysis_field_unit") or {}),
+            **(params.get("analysis_field_unit") or {}),
         )
         .call()
     )
@@ -355,7 +355,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("category_field") or {}),
+            **(params.get("category_field") or {}),
         )
         .call()
     )
@@ -374,7 +374,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("category_field_label") or {}),
+            **(params.get("category_field_label") or {}),
         )
         .call()
     )
@@ -394,7 +394,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("event_type") or {}),
+            **(params.get("event_type") or {}),
         )
         .call()
     )
@@ -414,7 +414,7 @@ def main(params: Params):
         )
         .partial(
             combined_params=set_event_details_combined,
-            **(params_dict.get("get_events_data") or {}),
+            **(params.get("get_events_data") or {}),
         )
         .call()
     )
@@ -435,7 +435,7 @@ def main(params: Params):
         .partial(
             client=er_client_name,
             event_type=event_type,
-            **(params_dict.get("get_event_schema_display_names") or {}),
+            **(params.get("get_event_schema_display_names") or {}),
         )
         .call()
     )
@@ -457,7 +457,7 @@ def main(params: Params):
             client=er_client_name,
             event_type=event_type,
             choice_field=category_field,
-            **(params_dict.get("get_category_display_names") or {}),
+            **(params.get("get_category_display_names") or {}),
         )
         .call()
     )
@@ -479,7 +479,7 @@ def main(params: Params):
             df=get_events_data,
             timezone=get_timezone,
             columns=["time"],
-            **(params_dict.get("convert_to_user_timezone") or {}),
+            **(params.get("convert_to_user_timezone") or {}),
         )
         .call()
     )
@@ -503,7 +503,7 @@ def main(params: Params):
             field_name_options=["latitude"],
             output_type="str",
             output_column_name="latitude",
-            **(params_dict.get("extract_latitude") or {}),
+            **(params.get("extract_latitude") or {}),
         )
         .call()
     )
@@ -527,7 +527,7 @@ def main(params: Params):
             field_name_options=["longitude"],
             output_type="str",
             output_column_name="longitude",
-            **(params_dict.get("extract_longitude") or {}),
+            **(params.get("extract_longitude") or {}),
         )
         .call()
     )
@@ -551,7 +551,7 @@ def main(params: Params):
             field_name_options=["name"],
             output_type="str",
             output_column_name="reported_by_name",
-            **(params_dict.get("extract_reported_by") or {}),
+            **(params.get("extract_reported_by") or {}),
         )
         .call()
     )
@@ -569,7 +569,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("groupers") or {}))
+        .partial(**(params.get("groupers") or {}))
         .call()
     )
 
@@ -586,7 +586,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(groupers=groupers, **(params_dict.get("spatial_group_ids") or {}))
+        .partial(groupers=groupers, **(params.get("spatial_group_ids") or {}))
         .call()
     )
 
@@ -605,7 +605,7 @@ def main(params: Params):
         )
         .partial(
             client=er_client_name,
-            **(params_dict.get("fetch_all_spatial_feature_groups") or {}),
+            **(params.get("fetch_all_spatial_feature_groups") or {}),
         )
         .map(argnames=["spatial_features_group_name"], argvalues=spatial_group_ids)
     )
@@ -625,7 +625,7 @@ def main(params: Params):
         .partial(
             groupers=groupers,
             spatial_feature_groups=fetch_all_spatial_feature_groups,
-            **(params_dict.get("resolved_groupers") or {}),
+            **(params.get("resolved_groupers") or {}),
         )
         .call()
     )
@@ -648,7 +648,7 @@ def main(params: Params):
             roi_gdf=None,
             roi_name=None,
             reset_index=True,
-            **(params_dict.get("filter_events") or {}),
+            **(params.get("filter_events") or {}),
         )
         .call()
     )
@@ -671,7 +671,7 @@ def main(params: Params):
             column="event_details",
             skip_if_not_exists=False,
             sort_columns=False,
-            **(params_dict.get("normalize_event_details") or {}),
+            **(params.get("normalize_event_details") or {}),
         )
         .call()
     )
@@ -692,7 +692,7 @@ def main(params: Params):
         .partial(
             prefix="event_details__",
             df=normalize_event_details,
-            **(params_dict.get("strip_event_details_prefix") or {}),
+            **(params.get("strip_event_details_prefix") or {}),
         )
         .call()
     )
@@ -716,7 +716,7 @@ def main(params: Params):
             groupers=resolved_groupers,
             cast_to_datetime=True,
             format="mixed",
-            **(params_dict.get("events_add_temporal_index") or {}),
+            **(params.get("events_add_temporal_index") or {}),
         )
         .call()
     )
@@ -737,7 +737,7 @@ def main(params: Params):
         .partial(
             gdf=events_add_temporal_index,
             groupers=resolved_groupers,
-            **(params_dict.get("events_add_spatial_index") or {}),
+            **(params.get("events_add_spatial_index") or {}),
         )
         .call()
     )
@@ -760,7 +760,7 @@ def main(params: Params):
             column_name="default_category",
             value=analysis_field_unit,
             noop_if_column_exists=False,
-            **(params_dict.get("add_default_category_column") or {}),
+            **(params.get("add_default_category_column") or {}),
         )
         .call()
     )
@@ -781,7 +781,7 @@ def main(params: Params):
         .partial(
             value=category_field,
             default="default_category",
-            **(params_dict.get("default_category_field") or {}),
+            **(params.get("default_category_field") or {}),
         )
         .call()
     )
@@ -802,7 +802,7 @@ def main(params: Params):
         .partial(
             value=category_field_label,
             default=category_field,
-            **(params_dict.get("category_field_label_or_category") or {}),
+            **(params.get("category_field_label_or_category") or {}),
         )
         .call()
     )
@@ -823,7 +823,7 @@ def main(params: Params):
         .partial(
             value=category_field_label_or_category,
             default=category_field,
-            **(params_dict.get("default_category_field_label") or {}),
+            **(params.get("default_category_field_label") or {}),
         )
         .call()
     )
@@ -846,7 +846,7 @@ def main(params: Params):
             column_name=analysis_field,
             value=None,
             noop_if_column_exists=True,
-            **(params_dict.get("ensure_analysis_column") or {}),
+            **(params.get("ensure_analysis_column") or {}),
         )
         .call()
     )
@@ -869,7 +869,7 @@ def main(params: Params):
             column_name=default_category_field,
             value="None",
             noop_if_column_exists=True,
-            **(params_dict.get("ensure_category_column") or {}),
+            **(params.get("ensure_category_column") or {}),
         )
         .call()
     )
@@ -891,7 +891,7 @@ def main(params: Params):
             var=analysis_field,
             value_map=get_event_schema_display_names,
             raise_if_not_found=True,
-            **(params_dict.get("analysis_field_display_name") or {}),
+            **(params.get("analysis_field_display_name") or {}),
         )
         .call()
     )
@@ -913,7 +913,7 @@ def main(params: Params):
             var=default_category_field,
             value_map=get_event_schema_display_names,
             raise_if_not_found=False,
-            **(params_dict.get("category_field_display_name") or {}),
+            **(params.get("category_field_display_name") or {}),
         )
         .call()
     )
@@ -937,7 +937,7 @@ def main(params: Params):
             value_map=get_category_display_names,
             missing_values="preserve",
             replacement=None,
-            **(params_dict.get("map_display_names") or {}),
+            **(params.get("map_display_names") or {}),
         )
         .call()
     )
@@ -959,7 +959,7 @@ def main(params: Params):
             df=map_display_names,
             value="None",
             columns=[default_category_field],
-            **(params_dict.get("convert_na_values") or {}),
+            **(params.get("convert_na_values") or {}),
         )
         .call()
     )
@@ -990,7 +990,7 @@ def main(params: Params):
                 "event_category": "Event Category",
             },
             raise_if_not_found=True,
-            **(params_dict.get("rename_columns") or {}),
+            **(params.get("rename_columns") or {}),
         )
         .call()
     )
@@ -1017,7 +1017,7 @@ def main(params: Params):
                 "Latitude",
                 "Longitude",
             ],
-            **(params_dict.get("column_display_order") or {}),
+            **(params.get("column_display_order") or {}),
         )
         .call()
     )
@@ -1045,7 +1045,7 @@ def main(params: Params):
                 "default_category",
                 "Event Category",
             ],
-            **(params_dict.get("events_table_columns") or {}),
+            **(params.get("events_table_columns") or {}),
         )
         .call()
     )
@@ -1066,7 +1066,7 @@ def main(params: Params):
         .partial(
             value_map=get_event_schema_display_names,
             raise_if_not_found=False,
-            **(params_dict.get("events_table_display_columns") or {}),
+            **(params.get("events_table_display_columns") or {}),
         )
         .map(argnames=["var"], argvalues=events_table_columns)
     )
@@ -1087,7 +1087,7 @@ def main(params: Params):
         .partial(
             df=rename_columns,
             columns=[analysis_field],
-            **(params_dict.get("ensure_numeric") or {}),
+            **(params.get("ensure_numeric") or {}),
         )
         .call()
     )
@@ -1126,7 +1126,7 @@ def main(params: Params):
                 "#C46C00",
             ],
             output_column_name="events_colormap",
-            **(params_dict.get("events_colormap") or {}),
+            **(params.get("events_colormap") or {}),
         )
         .call()
     )
@@ -1145,8 +1145,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            var=analysis_field_label,
-            **(params_dict.get("set_summary_table_title") or {}),
+            var=analysis_field_label, **(params.get("set_summary_table_title") or {})
         )
         .call()
     )
@@ -1165,7 +1164,7 @@ def main(params: Params):
         )
         .partial(
             values=[" by ", category_field_label],
-            **(params_dict.get("by_category_field_str") or {}),
+            **(params.get("by_category_field_str") or {}),
         )
         .call()
     )
@@ -1185,7 +1184,7 @@ def main(params: Params):
         )
         .partial(
             values=["Proportion of ", analysis_field_label],
-            **(params_dict.get("pie_chart_title_pt1") or {}),
+            **(params.get("pie_chart_title_pt1") or {}),
         )
         .call()
     )
@@ -1204,7 +1203,7 @@ def main(params: Params):
         )
         .partial(
             values=[pie_chart_title_pt1, by_category_field_str],
-            **(params_dict.get("set_pie_chart_title") or {}),
+            **(params.get("set_pie_chart_title") or {}),
         )
         .call()
     )
@@ -1223,7 +1222,7 @@ def main(params: Params):
         )
         .partial(
             values=[analysis_field_label, by_category_field_str, " Locations"],
-            **(params_dict.get("set_events_map_title") or {}),
+            **(params.get("set_events_map_title") or {}),
         )
         .call()
     )
@@ -1242,7 +1241,7 @@ def main(params: Params):
         )
         .partial(
             values=[analysis_field_label, by_category_field_str, " Over Time"],
-            **(params_dict.get("set_bar_chart_title") or {}),
+            **(params.get("set_bar_chart_title") or {}),
         )
         .call()
     )
@@ -1262,7 +1261,7 @@ def main(params: Params):
         )
         .partial(
             values=[analysis_field_label, " Sum"],
-            **(params_dict.get("set_sum_map_title") or {}),
+            **(params.get("set_sum_map_title") or {}),
         )
         .call()
     )
@@ -1280,9 +1279,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            var="Events Table", **(params_dict.get("set_events_table_title") or {})
-        )
+        .partial(var="Events Table", **(params.get("set_events_table_title") or {}))
         .call()
     )
 
@@ -1302,7 +1299,7 @@ def main(params: Params):
         .partial(
             df=events_colormap,
             groupers=resolved_groupers,
-            **(params_dict.get("split_event_groups") or {}),
+            **(params.get("split_event_groups") or {}),
         )
         .call()
     )
@@ -1325,7 +1322,7 @@ def main(params: Params):
             retain_columns=[],
             rename_columns=get_event_schema_display_names,
             raise_if_not_found=False,
-            **(params_dict.get("display_table") or {}),
+            **(params.get("display_table") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=split_event_groups)
     )
@@ -1345,7 +1342,7 @@ def main(params: Params):
         )
         .partial(
             column_name=analysis_field_display_name,
-            **(params_dict.get("drop_nan_values") or {}),
+            **(params.get("drop_nan_values") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=display_table)
     )
@@ -1363,7 +1360,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("base_map_defs") or {}))
+        .partial(**(params.get("base_map_defs") or {}))
         .call()
     )
 
@@ -1380,7 +1377,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("total_events") or {}))
+        .partial(**(params.get("total_events") or {}))
         .mapvalues(argnames=["df"], argvalues=display_table)
     )
 
@@ -1399,7 +1396,7 @@ def main(params: Params):
         .partial(
             title="Event Count",
             decimal_places=1,
-            **(params_dict.get("total_events_sv_widget") or {}),
+            **(params.get("total_events_sv_widget") or {}),
         )
         .map(argnames=["view", "data"], argvalues=total_events)
     )
@@ -1419,7 +1416,7 @@ def main(params: Params):
         )
         .partial(
             widgets=total_events_sv_widget,
-            **(params_dict.get("total_events_grouped_sv_widget") or {}),
+            **(params.get("total_events_grouped_sv_widget") or {}),
         )
         .call()
     )
@@ -1467,7 +1464,7 @@ def main(params: Params):
             ],
             groupby_cols=None,
             reset_index=False,
-            **(params_dict.get("grouped_event_summary") or {}),
+            **(params.get("grouped_event_summary") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=drop_nan_values)
     )
@@ -1487,7 +1484,7 @@ def main(params: Params):
         )
         .partial(
             transposed_column_name="Summary Stats",
-            **(params_dict.get("transpose_table") or {}),
+            **(params.get("transpose_table") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=grouped_event_summary)
     )
@@ -1510,7 +1507,7 @@ def main(params: Params):
             retain_columns=[],
             rename_columns={"0": "Summary Values"},
             raise_if_not_found=True,
-            **(params_dict.get("rename_summary_columns") or {}),
+            **(params.get("rename_summary_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=transpose_table)
     )
@@ -1537,7 +1534,7 @@ def main(params: Params):
                 "hide_header": True,
             },
             widget_id=set_summary_table_title,
-            **(params_dict.get("summary_table") or {}),
+            **(params.get("summary_table") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=rename_summary_columns)
     )
@@ -1558,7 +1555,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("summary_html_urls") or {}),
+            **(params.get("summary_html_urls") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=summary_table)
     )
@@ -1577,7 +1574,7 @@ def main(params: Params):
         )
         .partial(
             title=set_summary_table_title,
-            **(params_dict.get("summary_table_single_views") or {}),
+            **(params.get("summary_table_single_views") or {}),
         )
         .map(argnames=["view", "data"], argvalues=summary_html_urls)
     )
@@ -1597,7 +1594,7 @@ def main(params: Params):
         )
         .partial(
             widgets=summary_table_single_views,
-            **(params_dict.get("grouped_summary_table_widget") or {}),
+            **(params.get("grouped_summary_table_widget") or {}),
         )
         .call()
     )
@@ -1622,7 +1619,7 @@ def main(params: Params):
             label_column=category_field_display_name,
             layout_style=None,
             widget_id=set_pie_chart_title,
-            **(params_dict.get("grouped_events_pie_chart") or {}),
+            **(params.get("grouped_events_pie_chart") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
@@ -1643,7 +1640,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("grouped_pie_chart_html_urls") or {}),
+            **(params.get("grouped_pie_chart_html_urls") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=grouped_events_pie_chart)
     )
@@ -1662,7 +1659,7 @@ def main(params: Params):
         )
         .partial(
             title=set_pie_chart_title,
-            **(params_dict.get("grouped_events_pie_chart_widgets") or {}),
+            **(params.get("grouped_events_pie_chart_widgets") or {}),
         )
         .map(argnames=["view", "data"], argvalues=grouped_pie_chart_html_urls)
     )
@@ -1682,7 +1679,7 @@ def main(params: Params):
         )
         .partial(
             widgets=grouped_events_pie_chart_widgets,
-            **(params_dict.get("grouped_events_pie_widget_merge") or {}),
+            **(params.get("grouped_events_pie_widget_merge") or {}),
         )
         .call()
     )
@@ -1703,7 +1700,7 @@ def main(params: Params):
         .partial(
             column=analysis_field_display_name,
             output_column_name="normalized_analysis_field",
-            **(params_dict.get("normalize_analysis_field") or {}),
+            **(params.get("normalize_analysis_field") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=display_table)
     )
@@ -1721,7 +1718,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("drop_empty_geometry") or {}))
+        .partial(**(params.get("drop_empty_geometry") or {}))
         .mapvalues(argnames=["gdf"], argvalues=normalize_analysis_field)
     )
 
@@ -1757,7 +1754,7 @@ def main(params: Params):
                 "Reported By",
                 analysis_field_display_name,
             ],
-            **(params_dict.get("grouped_events_map_layer") or {}),
+            **(params.get("grouped_events_map_layer") or {}),
         )
         .mapvalues(argnames=["geodataframe"], argvalues=drop_empty_geometry)
     )
@@ -1787,7 +1784,7 @@ def main(params: Params):
             static=False,
             max_zoom=20,
             widget_id=set_events_map_title,
-            **(params_dict.get("grouped_events_ecomap") or {}),
+            **(params.get("grouped_events_ecomap") or {}),
         )
         .mapvalues(argnames=["geo_layers"], argvalues=grouped_events_map_layer)
     )
@@ -1808,7 +1805,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("grouped_events_ecomap_html_url") or {}),
+            **(params.get("grouped_events_ecomap_html_url") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=grouped_events_ecomap)
     )
@@ -1827,7 +1824,7 @@ def main(params: Params):
         )
         .partial(
             title=set_events_map_title,
-            **(params_dict.get("grouped_events_map_widget") or {}),
+            **(params.get("grouped_events_map_widget") or {}),
         )
         .map(argnames=["view", "data"], argvalues=grouped_events_ecomap_html_url)
     )
@@ -1847,7 +1844,7 @@ def main(params: Params):
         )
         .partial(
             widgets=grouped_events_map_widget,
-            **(params_dict.get("grouped_events_map_widget_merge") or {}),
+            **(params.get("grouped_events_map_widget_merge") or {}),
         )
         .call()
     )
@@ -1874,7 +1871,7 @@ def main(params: Params):
             plot_style={"xperiodalignment": "middle"},
             layout_style=None,
             widget_id=set_bar_chart_title,
-            **(params_dict.get("events_bar_chart") or {}),
+            **(params.get("events_bar_chart") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
@@ -1895,7 +1892,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("events_bar_chart_html_url") or {}),
+            **(params.get("events_bar_chart_html_url") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=events_bar_chart)
     )
@@ -1913,8 +1910,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            title=set_bar_chart_title,
-            **(params_dict.get("events_bar_chart_widget") or {}),
+            title=set_bar_chart_title, **(params.get("events_bar_chart_widget") or {})
         )
         .map(argnames=["view", "data"], argvalues=events_bar_chart_html_url)
     )
@@ -1934,7 +1930,7 @@ def main(params: Params):
         )
         .partial(
             widgets=events_bar_chart_widget,
-            **(params_dict.get("grouped_bar_plot_widget_merge") or {}),
+            **(params.get("grouped_bar_plot_widget_merge") or {}),
         )
         .call()
     )
@@ -1956,7 +1952,7 @@ def main(params: Params):
         .partial(
             aoi=events_add_spatial_index,
             intersecting_only=False,
-            **(params_dict.get("events_meshgrid") or {}),
+            **(params.get("events_meshgrid") or {}),
         )
         .call()
     )
@@ -1978,7 +1974,7 @@ def main(params: Params):
             meshgrid=events_meshgrid,
             geometry_type="point",
             sum_column=analysis_field_display_name,
-            **(params_dict.get("grouped_events_sum_map") or {}),
+            **(params.get("grouped_events_sum_map") or {}),
         )
         .mapvalues(argnames=["geodataframe"], argvalues=display_table)
     )
@@ -1996,9 +1992,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            column_name="density", **(params_dict.get("drop_nan_percentiles") or {})
-        )
+        .partial(column_name="density", **(params.get("drop_nan_percentiles") or {}))
         .mapvalues(argnames=["df"], argvalues=grouped_events_sum_map)
     )
 
@@ -2019,7 +2013,7 @@ def main(params: Params):
             column_name="density",
             ascending=True,
             na_position="last",
-            **(params_dict.get("sort_grouped_sum_values") or {}),
+            **(params.get("sort_grouped_sum_values") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=drop_nan_percentiles)
     )
@@ -2042,7 +2036,7 @@ def main(params: Params):
             output_column_name="density_bins",
             classification_options={"scheme": "equal_interval", "k": 9},
             label_options={"label_ranges": True, "label_decimals": 0},
-            **(params_dict.get("classify_fd") or {}),
+            **(params.get("classify_fd") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=sort_grouped_sum_values)
     )
@@ -2074,7 +2068,7 @@ def main(params: Params):
                 "#F23B0E",
             ],
             output_column_name="density_colormap",
-            **(params_dict.get("grouped_fd_colormap") or {}),
+            **(params.get("grouped_fd_colormap") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=classify_fd)
     )
@@ -2097,7 +2091,7 @@ def main(params: Params):
             retain_columns=[],
             rename_columns={"density": "Sum"},
             raise_if_not_found=True,
-            **(params_dict.get("fd_rename_columns") or {}),
+            **(params.get("fd_rename_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=grouped_fd_colormap)
     )
@@ -2124,7 +2118,7 @@ def main(params: Params):
             },
             legend={"label_column": "density_bins", "color_column": "density_colormap"},
             tooltip_columns=["Sum"],
-            **(params_dict.get("grouped_fd_map_layer") or {}),
+            **(params.get("grouped_fd_map_layer") or {}),
         )
         .mapvalues(argnames=["geodataframe"], argvalues=fd_rename_columns)
     )
@@ -2154,7 +2148,7 @@ def main(params: Params):
             static=False,
             max_zoom=20,
             widget_id=set_sum_map_title,
-            **(params_dict.get("grouped_fd_ecomap") or {}),
+            **(params.get("grouped_fd_ecomap") or {}),
         )
         .mapvalues(argnames=["geo_layers"], argvalues=grouped_fd_map_layer)
     )
@@ -2175,7 +2169,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("grouped_fd_ecomap_html_url") or {}),
+            **(params.get("grouped_fd_ecomap_html_url") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=grouped_fd_ecomap)
     )
@@ -2192,9 +2186,7 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            title=set_sum_map_title, **(params_dict.get("grouped_fd_map_widget") or {})
-        )
+        .partial(title=set_sum_map_title, **(params.get("grouped_fd_map_widget") or {}))
         .map(argnames=["view", "data"], argvalues=grouped_fd_ecomap_html_url)
     )
 
@@ -2213,7 +2205,7 @@ def main(params: Params):
         )
         .partial(
             widgets=grouped_fd_map_widget,
-            **(params_dict.get("grouped_fd_map_widget_merge") or {}),
+            **(params.get("grouped_fd_map_widget_merge") or {}),
         )
         .call()
     )
@@ -2240,7 +2232,7 @@ def main(params: Params):
                 "hide_header": False,
             },
             widget_id=set_events_table_title,
-            **(params_dict.get("events_table") or {}),
+            **(params.get("events_table") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=display_table)
     )
@@ -2261,7 +2253,7 @@ def main(params: Params):
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename_suffix="v2",
-            **(params_dict.get("table_html_urls") or {}),
+            **(params.get("table_html_urls") or {}),
         )
         .mapvalues(argnames=["text"], argvalues=events_table)
     )
@@ -2280,7 +2272,7 @@ def main(params: Params):
         )
         .partial(
             title=set_events_table_title,
-            **(params_dict.get("events_table_single_views") or {}),
+            **(params.get("events_table_single_views") or {}),
         )
         .map(argnames=["view", "data"], argvalues=table_html_urls)
     )
@@ -2300,7 +2292,7 @@ def main(params: Params):
         )
         .partial(
             widgets=events_table_single_views,
-            **(params_dict.get("grouped_table_widget") or {}),
+            **(params.get("grouped_table_widget") or {}),
         )
         .call()
     )
@@ -2331,7 +2323,7 @@ def main(params: Params):
             ],
             groupers=resolved_groupers,
             time_range=time_range,
-            **(params_dict.get("events_dashboard") or {}),
+            **(params.get("events_dashboard") or {}),
         )
         .call()
     )

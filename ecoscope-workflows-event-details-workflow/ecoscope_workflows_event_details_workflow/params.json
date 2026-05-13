@@ -543,7 +543,16 @@
     "ValueGrouper": {
       "properties": {
         "index_name": {
-          "oneOf": [],
+          "oneOf": [
+            {
+              "const": "Event Category",
+              "title": "Event Type Category"
+            },
+            {
+              "const": "Reported By",
+              "title": "Reported By Name"
+            }
+          ],
           "title": "Category",
           "type": "string"
         }
