@@ -877,6 +877,15 @@ workflow:
         mapvalues:
           argnames: df
           argvalues: ${{ workflow.grouped_fd_colormap.return }}
+       # calculate_feature_density by default outputs in EPSG:3857
+      - name: Convert sum map crs
+        id: event_sum_crs
+        task: convert_crs
+        partial:
+          crs: "EPSG:4326"
+        mapvalues:
+          argnames: df
+          argvalues: ${{ workflow.fd_rename_columns.return }}
       - name: Persist analysis field sum to parquet
         id: persist_analysis_field_parquet
         task: persist_arrow
@@ -885,7 +894,7 @@ workflow:
           filename: null
         mapvalues:
           argnames: df
-          argvalues: ${{ workflow.fd_rename_columns.return }}
+          argvalues: ${{ workflow.event_sum_crs.return }}
       - name: Combine events gdf and data url
         id: combine_event_sum_gdf_and_url
         skipif:
@@ -895,7 +904,7 @@ workflow:
         task: groupbykey
         partial:
           iterables:
-            - ${{ workflow.fd_rename_columns.return }}
+            - ${{ workflow.event_sum_crs.return }}
             - ${{ workflow.persist_analysis_field_parquet.return }}
       - name: Create map layer from Analysis Field Sum
         id: grouped_fd_map_layer
