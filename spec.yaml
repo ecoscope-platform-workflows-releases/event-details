@@ -644,11 +644,18 @@ workflow:
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.display_table.return }}
+  - id: shift_radius
+    task: shift_radius_values
+    partial:
+      radius_column: normalized_analysis_field
+    mapvalues:
+      argnames: gdf
+      argvalues: ${{ workflow.normalize_analysis_field.return }}
   - id: drop_empty_geometry
     task: drop_null_geometry
     mapvalues:
       argnames: gdf
-      argvalues: ${{ workflow.normalize_analysis_field.return }}
+      argvalues: ${{ workflow.shift_radius.return }}
   - name: Persist events to parquet
     id: persist_events_parquet
     task: persist_arrow
@@ -714,18 +721,9 @@ workflow:
     mapvalues:
       argnames: geo_layers
       argvalues: ${{ workflow.grouped_events_map_layer.return }}
-  - name: Persist grouped Events Ecomap as Text
-    id: grouped_events_ecomap_html_url
-    task: persist_text
-    partial:
-      root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: v2
-    mapvalues:
-      argnames: text
-      argvalues: ${{ workflow.grouped_events_ecomap.return }}
   - name: Create grouped Events Map Widget
     id: grouped_events_map_widget
-    task: create_map_widget_single_view
+    task: create_map_v2_widget_single_view
     skipif:
       conditions:
         - never
@@ -735,7 +733,7 @@ workflow:
       argnames:
         - view
         - data
-      argvalues: ${{ workflow.grouped_events_ecomap_html_url.return }}
+      argvalues: ${{ workflow.grouped_events_ecomap.return }}
   - name: Merge Events Map Widget Views
     id: grouped_events_map_widget_merge
     task: merge_widget_views
@@ -946,18 +944,9 @@ workflow:
         mapvalues:
           argnames: geo_layers
           argvalues: ${{ workflow.grouped_fd_map_layer.return }}
-      - name: Persist Analysis Field Sum Ecomap as Text
-        id: grouped_fd_ecomap_html_url
-        task: persist_text
-        partial:
-          root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-          filename_suffix: v2
-        mapvalues:
-          argnames: text
-          argvalues: ${{ workflow.grouped_fd_ecomap.return }}
       - name: Create Analysis Field Sum Map Widget
         id: grouped_fd_map_widget
-        task: create_map_widget_single_view
+        task: create_map_v2_widget_single_view
         skipif:
           conditions:
             - never
@@ -967,7 +956,7 @@ workflow:
           argnames:
             - view
             - data
-          argvalues: ${{ workflow.grouped_fd_ecomap_html_url.return }}
+          argvalues: ${{ workflow.grouped_fd_ecomap.return }}
       - name: Merge Analysis Field Sum Widget Views
         id: grouped_fd_map_widget_merge
         task: merge_widget_views
