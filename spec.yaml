@@ -1,11 +1,9 @@
 id: event_details
 requirements:
   - name: ecoscope
-    # git: https://github.com/wildlife-dynamics/ecoscope
-    # branch: am/bottleneck-tasks
-    path: /home/alex/Code/ecoscope__worktrees/am-pydeck-geoarrow-layers
+    git: https://github.com/wildlife-dynamics/ecoscope
+    branch: am/pydeck-geoarrow-layers
     extras: [analysis,mapping,plotting,platform]
-    editable: true
   # ecoscope-platform already declares this exact pydeck dependency. it is
   # re-stated here as a workaround for a known issue. for further detail, see:
   # https://github.com/wildlife-dynamics/wt/issues/167#issuecomment-4451993697
@@ -658,12 +656,12 @@ workflow:
       argvalues: ${{ workflow.shift_radius.return }}
   - name: Persist events to parquet
     id: persist_events_parquet
-    task: persist_arrow
+    task: persist_geoarrow_for_pydeck
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}          
       filename: null
     mapvalues:
-      argnames: df
+      argnames: gdf
       argvalues: ${{ workflow.drop_empty_geometry.return }}
   - name: Combine events gdf and data url
     id: combine_events_gdf_and_url
@@ -886,12 +884,12 @@ workflow:
           argvalues: ${{ workflow.fd_rename_columns.return }}
       - name: Persist analysis field sum to parquet
         id: persist_analysis_field_parquet
-        task: persist_arrow
+        task: persist_geoarrow_for_pydeck
         partial:
           root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}          
           filename: null
         mapvalues:
-          argnames: df
+          argnames: gdf
           argvalues: ${{ workflow.event_sum_crs.return }}
       - name: Combine events gdf and data url
         id: combine_event_sum_gdf_and_url

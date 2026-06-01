@@ -97,7 +97,6 @@ from ecoscope.platform.tasks.config import set_string_var as set_string_var
 from ecoscope.platform.tasks.groupby import groupbykey as groupbykey
 from ecoscope.platform.tasks.groupby import split_groups as split_groups
 from ecoscope.platform.tasks.io import persist_text as persist_text
-from ecoscope.platform.tasks.io._persist import persist_arrow as persist_arrow
 from ecoscope.platform.tasks.results import (
     create_map_v2_widget_single_view as create_map_v2_widget_single_view,
 )
@@ -118,6 +117,9 @@ from ecoscope.platform.tasks.results import (
 )
 from ecoscope.platform.tasks.results import gather_dashboard as gather_dashboard
 from ecoscope.platform.tasks.results import merge_widget_views as merge_widget_views
+from ecoscope.platform.tasks.results import (
+    persist_geoarrow_for_pydeck as persist_geoarrow_for_pydeck,
+)
 from ecoscope.platform.tasks.results import set_base_maps as set_base_maps
 from ecoscope.platform.tasks.results import shift_radius_values as shift_radius_values
 from ecoscope.platform.tasks.results._pydeck import (
@@ -1754,7 +1756,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     persist_events_parquet = (
-        task(persist_arrow)
+        task(persist_geoarrow_for_pydeck)
         .validate()
         .set_task_instance_id("persist_events_parquet")
         .handle_errors()
@@ -1771,7 +1773,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             filename=None,
             **(params.get("persist_events_parquet") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=drop_empty_geometry)
+        .mapvalues(argnames=["gdf"], argvalues=drop_empty_geometry)
     )
 
     combine_events_gdf_and_url = (
@@ -2168,7 +2170,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     persist_analysis_field_parquet = (
-        task(persist_arrow)
+        task(persist_geoarrow_for_pydeck)
         .validate()
         .set_task_instance_id("persist_analysis_field_parquet")
         .handle_errors()
@@ -2185,7 +2187,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             filename=None,
             **(params.get("persist_analysis_field_parquet") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=event_sum_crs)
+        .mapvalues(argnames=["gdf"], argvalues=event_sum_crs)
     )
 
     combine_event_sum_gdf_and_url = (
