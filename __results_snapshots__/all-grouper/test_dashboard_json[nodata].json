@@ -43,7 +43,7 @@
           "id": 3,
           "is_filtered": false,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
           "data": null,
@@ -57,7 +57,7 @@
           "id": 5,
           "is_filtered": false,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
           "data": null,
