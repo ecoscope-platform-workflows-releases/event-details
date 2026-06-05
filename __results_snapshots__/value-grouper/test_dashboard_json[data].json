@@ -62,49 +62,297 @@
     "views": {
       "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Bull Only\"}": [
         {
-          "data": "str",
+          "data": "72",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.605045835484057,
+              "longitude": 35.369495863940415,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(255, 63, 179, 1.0)",
+                        "label": "Bull Only"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.60474175560824,
+              "longitude": 35.37652725445235,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 6"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "6 - 11"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "11 - 15"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "15 - 20"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "20 - 25"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "25 - 30"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "30 - 34"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "34 - 39"
+                      },
+                      {
+                        "color": "rgba(242, 59, 14, 1.0)",
+                        "label": "39 - 44"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
@@ -113,49 +361,293 @@
       ],
       "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Female Only\"}": [
         {
-          "data": "str",
+          "data": "57",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.624838055299628,
+              "longitude": 35.3634637050679,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(49, 43, 134, 1.0)",
+                        "label": "Female Only"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6236300583083065,
+              "longitude": 35.35764466718015,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 6"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "6 - 12"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "12 - 17"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "17 - 22"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "22 - 28"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "28 - 33"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "33 - 38"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "44 - 49"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
@@ -164,49 +656,297 @@
       ],
       "{\"Event Category\": \"standard_reporting\", \"herd_type\": \"Mix\"}": [
         {
-          "data": "str",
+          "data": "121",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6057542588850557,
+              "longitude": 35.35444662392656,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(8, 209, 204, 1.0)",
+                        "label": "Mix"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.60474175560824,
+              "longitude": 35.34820337354406,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 7"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "7 - 13"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "13 - 19"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "19 - 25"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "25 - 32"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "32 - 38"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "38 - 44"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "44 - 50"
+                      },
+                      {
+                        "color": "rgba(242, 59, 14, 1.0)",
+                        "label": "50 - 56"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
@@ -215,49 +955,297 @@
       ],
       "{\"Event Category\": \"testing\", \"herd_type\": \"Bull Only\"}": [
         {
-          "data": "str",
+          "data": "63",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6015594329458454,
+              "longitude": 35.38872543861453,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(255, 63, 179, 1.0)",
+                        "label": "Bull Only"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6047465460679442,
+              "longitude": 35.39540984172454,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 6"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "6 - 10"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "10 - 15"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "15 - 20"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "20 - 24"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "24 - 29"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "29 - 34"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "34 - 38"
+                      },
+                      {
+                        "color": "rgba(242, 59, 14, 1.0)",
+                        "label": "38 - 43"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
@@ -266,49 +1254,293 @@
       ],
       "{\"Event Category\": \"testing\", \"herd_type\": \"Female Only\"}": [
         {
-          "data": "str",
+          "data": "64",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6021348525099621,
+              "longitude": 35.377265161973895,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(49, 43, 134, 1.0)",
+                        "label": "Female Only"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6047465460679442,
+              "longitude": 35.37652725445234,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 6"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "11 - 16"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "16 - 21"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "21 - 25"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "25 - 30"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "30 - 35"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "35 - 40"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "40 - 45"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
@@ -317,49 +1549,297 @@
       ],
       "{\"Event Category\": \"testing\", \"herd_type\": \"Mix\"}": [
         {
-          "data": "str",
+          "data": "123",
           "id": 0,
           "is_filtered": true,
           "title": "Event Count",
           "widget_type": "stat"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 1,
           "is_filtered": true,
           "title": "Herd Size",
           "widget_type": "table"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 2,
           "is_filtered": true,
           "title": "Proportion of Herd Size by Herd Type",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.6043715274231132,
+              "longitude": 35.35246407481016,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size by Herd Type Locations"
+              },
+              {
+                "@@type": "GeoArrowScatterplotLayer",
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "elevationScale": 1,
+                "filled": true,
+                "getFillColor": "events_colormap",
+                "getLineColor": "#FFFFFF",
+                "getLineWidth": 1,
+                "getRadius": "normalized_analysis_field",
+                "id": "GeoArrowScatterplotLayer-0",
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 1,
+                "pickable": true,
+                "radiusMinPixels": 0,
+                "radiusScale": 5.0,
+                "radiusUnits": "pixels",
+                "stroked": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(8, 209, 204, 1.0)",
+                        "label": "Mix"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowScatterplotLayer-0": [
+                    "Serial Number",
+                    "Event Time",
+                    "Reported By",
+                    "How many elephants are in the group?"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 3,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Locations",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 4,
           "is_filtered": true,
           "title": "Herd Size by Herd Type Over Time",
           "widget_type": "graph"
         },
         {
-          "data": "str",
+          "data": {
+            "initialViewState": {
+              "bearing": 0,
+              "latitude": -1.60474175560824,
+              "longitude": 35.35764466718015,
+              "pitch": 0,
+              "zoom": 7.0
+            },
+            "layers": [
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 20,
+                "minZoom": 0,
+                "opacity": 1.0,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "TiledBitmapLayer",
+                "data": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                "id": "uuid",
+                "maxZoom": 17,
+                "minZoom": 0,
+                "opacity": 0.5,
+                "tileSize": 256,
+                "widgetId": "Herd Size Sum"
+              },
+              {
+                "@@type": "GeoArrowPolygonLayer",
+                "antialiasing": true,
+                "autoHighlight": false,
+                "billboard": false,
+                "data": "tmpfile",
+                "extruded": false,
+                "filled": true,
+                "getFillColor": "density_colormap",
+                "getLineWidth": 0.0,
+                "id": "GeoArrowPolygonLayer-0",
+                "lineJointRounded": false,
+                "lineMiterLimit": 4,
+                "lineWidthMinPixels": 0,
+                "lineWidthScale": 1,
+                "lineWidthUnits": "pixels",
+                "opacity": 0.4,
+                "pickable": true,
+                "stroked": false,
+                "wireframe": true
+              }
+            ],
+            "mapProvider": "carto",
+            "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+            "parameters": {
+              "depthTest": false
+            },
+            "views": {
+              "@@type": "MapView",
+              "controller": true,
+              "repeat": true
+            },
+            "widgets": [
+              {
+                "@@type": "NorthArrowWidget",
+                "id": "uuid",
+                "placement": "top-left",
+                "style": {
+                  "transform": "scale(0.8)"
+                }
+              },
+              {
+                "@@type": "ScaleWidget",
+                "id": "uuid",
+                "placement": "bottom-left"
+              },
+              {
+                "@@type": "SaveImageWidget",
+                "id": "uuid",
+                "placement": "top-right"
+              },
+              {
+                "@@type": "LegendWidget",
+                "id": "uuid",
+                "legendValues": [
+                  {
+                    "title": "Legend",
+                    "values": [
+                      {
+                        "color": "rgba(92, 79, 231, 1.0)",
+                        "label": "1 - 7"
+                      },
+                      {
+                        "color": "rgba(38, 156, 213, 1.0)",
+                        "label": "7 - 13"
+                      },
+                      {
+                        "color": "rgba(0, 208, 200, 1.0)",
+                        "label": "13 - 18"
+                      },
+                      {
+                        "color": "rgba(129, 214, 112, 1.0)",
+                        "label": "18 - 24"
+                      },
+                      {
+                        "color": "rgba(255, 208, 0, 1.0)",
+                        "label": "24 - 30"
+                      },
+                      {
+                        "color": "rgba(249, 187, 18, 1.0)",
+                        "label": "30 - 36"
+                      },
+                      {
+                        "color": "rgba(255, 150, 0, 1.0)",
+                        "label": "36 - 41"
+                      },
+                      {
+                        "color": "rgba(250, 115, 6, 1.0)",
+                        "label": "41 - 47"
+                      },
+                      {
+                        "color": "rgba(242, 59, 14, 1.0)",
+                        "label": "47 - 53"
+                      }
+                    ]
+                  }
+                ],
+                "placement": "bottom-right"
+              },
+              {
+                "@@type": "TooltipWidget",
+                "id": "TooltipWidget",
+                "layerColumns": {
+                  "GeoArrowPolygonLayer-0": [
+                    "Sum"
+                  ]
+                }
+              }
+            ]
+          },
           "id": 5,
           "is_filtered": true,
           "title": "Herd Size Sum",
-          "widget_type": "map"
+          "widget_type": "map_v2"
         },
         {
-          "data": "str",
+          "data": "tmpfile",
           "id": 6,
           "is_filtered": true,
           "title": "Events Table",
