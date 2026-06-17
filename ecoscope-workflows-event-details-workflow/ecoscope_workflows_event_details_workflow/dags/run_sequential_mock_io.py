@@ -1259,6 +1259,25 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .call()
     )
 
+    set_bar_chart_y_axis_label = (
+        task(concat_string_vars)
+        .validate()
+        .set_task_instance_id("set_bar_chart_y_axis_label")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                never,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            values=["Count of Events", by_category_field_str],
+            **(params.get("set_bar_chart_y_axis_label") or {}),
+        )
+        .call()
+    )
+
     set_sum_map_title = (
         task(concat_string_vars)
         .validate()
@@ -1926,7 +1945,10 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             agg_function="sum",
             color_column="events_colormap",
             plot_style={"xperiodalignment": "middle"},
-            layout_style=None,
+            layout_style={
+                "yaxis": {"title": set_bar_chart_y_axis_label},
+                "xaxis": {"title": "Time"},
+            },
             widget_id=set_bar_chart_title,
             **(params.get("events_bar_chart") or {}),
         )
