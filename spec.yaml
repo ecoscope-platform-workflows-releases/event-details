@@ -441,6 +441,15 @@ workflow:
         - ${{ workflow.analysis_field_label.return }}
         - ${{ workflow.by_category_field_str.return }}
         - ' Over Time'
+  - id: set_bar_chart_y_axis_label
+    task: concat_string_vars
+    skipif:
+      conditions:
+        - never
+    partial:
+      values:
+        - 'Count of Events'
+        - ${{ workflow.by_category_field_str.return }}
   - name: Set Analysis Field Sum Map Title
     id: set_sum_map_title
     task: concat_string_vars
@@ -732,7 +741,11 @@ workflow:
           color_column: events_colormap
           plot_style:
             xperiodalignment: middle
-          layout_style: null
+          layout_style:
+            yaxis:
+              title: ${{ workflow.set_bar_chart_y_axis_label.return }}
+            xaxis:
+              title: "Time"
           widget_id: ${{ workflow.set_bar_chart_title.return }}
         mapvalues:
           argnames: dataframe
