@@ -1002,7 +1002,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
                 "longitude": "Longitude",
                 "event_category": "Event Category",
             },
-            raise_if_not_found=True,
+            raise_if_not_found=False,
             **(params.get("rename_columns") or {}),
         )
         .call()

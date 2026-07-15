@@ -332,7 +332,7 @@ workflow:
         latitude: Latitude
         longitude: Longitude
         event_category: Event Category
-      raise_if_not_found: true
+      raise_if_not_found: false
   - name: Reorder columns for display
     id: column_display_order
     task: reorder_columns
