@@ -332,7 +332,12 @@ workflow:
         latitude: Latitude
         longitude: Longitude
         event_category: Event Category
-      raise_if_not_found: true
+      # The dropped columns are backend-dependent: `updates` is added by the ER API
+      # but not served by the DWH, so requiring it fails the DWH-backed run.
+      # No step in this workflow reads `updates`; it is listed here only so it does
+      # not show up in the display table, which is built from the leftover columns.
+      # Nothing is lost when it is absent, so a missing column must not be an error.
+      raise_if_not_found: false
   - name: Reorder columns for display
     id: column_display_order
     task: reorder_columns
