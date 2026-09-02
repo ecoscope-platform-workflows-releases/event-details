@@ -496,6 +496,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             field_name_options=["latitude"],
             output_type="str",
             output_column_name="latitude",
+            fan_out=False,
             **(params.get("extract_latitude") or {}),
         )
         .call()
@@ -520,6 +521,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             field_name_options=["longitude"],
             output_type="str",
             output_column_name="longitude",
+            fan_out=False,
             **(params.get("extract_longitude") or {}),
         )
         .call()
@@ -544,6 +546,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             field_name_options=["name"],
             output_type="str",
             output_column_name="reported_by_name",
+            fan_out=False,
             **(params.get("extract_reported_by") or {}),
         )
         .call()
