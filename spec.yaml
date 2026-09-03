@@ -1,7 +1,7 @@
 id: event_details
 requirements:
   - name: ecoscope-platform
-    version: 2.15.0
+    version: 2.20.0
     channel: https://repo.prefix.dev/ecoscope-workflows/
   # ecoscope-platform already declares this exact pydeck dependency. it is
   # re-stated here as a workaround for a known issue. for further detail, see:
@@ -174,6 +174,7 @@ workflow:
         - latitude
       output_type: str
       output_column_name: latitude
+      fan_out: false
   - name: Extract Longitude from Events
     id: extract_longitude
     task: extract_value_from_json_column
@@ -184,6 +185,7 @@ workflow:
         - longitude
       output_type: str
       output_column_name: longitude
+      fan_out: false
   - name: Extract reported_by_name from Events
     id: extract_reported_by
     task: extract_value_from_json_column
@@ -194,6 +196,7 @@ workflow:
         - name
       output_type: str
       output_column_name: reported_by_name
+      fan_out: false
   - name: Group Data
     id: groupers
     task: set_groupers
