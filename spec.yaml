@@ -240,7 +240,7 @@ workflow:
     partial:
       prefix: event_details__
       df: ${{ workflow.normalize_event_details.return }}
-      duplicate_strategy: "prefix"
+      duplicate_strategy: "suffix"
   - name: Add temporal index to Events
     id: events_add_temporal_index
     task: add_temporal_index

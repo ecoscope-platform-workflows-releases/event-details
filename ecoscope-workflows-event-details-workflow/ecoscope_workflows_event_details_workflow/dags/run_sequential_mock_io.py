@@ -707,7 +707,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             prefix="event_details__",
             df=normalize_event_details,
-            duplicate_strategy="prefix",
+            duplicate_strategy="suffix",
             **(params.get("strip_event_details_prefix") or {}),
         )
         .call()
