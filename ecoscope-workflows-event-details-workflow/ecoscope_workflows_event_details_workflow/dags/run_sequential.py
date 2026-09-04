@@ -675,6 +675,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             prefix="event_details__",
             df=normalize_event_details,
+            duplicate_strategy="suffix",
             **(params.get("strip_event_details_prefix") or {}),
         )
         .call()
@@ -973,6 +974,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
                 "event_category": "Event Category",
             },
             raise_if_not_found=True,
+            duplicate_strategy="overwrite",
             **(params.get("rename_columns") or {}),
         )
         .call()
@@ -1324,6 +1326,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             retain_columns=[],
             rename_columns=get_event_schema_display_names,
             raise_if_not_found=False,
+            duplicate_strategy="suffix",
             **(params.get("display_table") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=split_event_groups)
@@ -1509,6 +1512,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             retain_columns=[],
             rename_columns={"0": "Summary Values"},
             raise_if_not_found=True,
+            duplicate_strategy="overwrite",
             **(params.get("rename_summary_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=transpose_table)
@@ -2096,6 +2100,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             retain_columns=[],
             rename_columns={"density": "Sum"},
             raise_if_not_found=True,
+            duplicate_strategy="overwrite",
             **(params.get("fd_rename_columns") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=grouped_fd_colormap)
