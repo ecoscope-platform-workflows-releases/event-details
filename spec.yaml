@@ -484,7 +484,7 @@ workflow:
       retain_columns: []
       rename_columns: ${{ workflow.get_event_schema_display_names.return }}
       raise_if_not_found: false
-      duplicate_strategy: "prefix"
+      duplicate_strategy: "suffix"
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.split_event_groups.return }}

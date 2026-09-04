@@ -1339,7 +1339,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             retain_columns=[],
             rename_columns=get_event_schema_display_names,
             raise_if_not_found=False,
-            duplicate_strategy="prefix",
+            duplicate_strategy="suffix",
             **(params.get("display_table") or {}),
         )
         .mapvalues(argnames=["df"], argvalues=split_event_groups)
