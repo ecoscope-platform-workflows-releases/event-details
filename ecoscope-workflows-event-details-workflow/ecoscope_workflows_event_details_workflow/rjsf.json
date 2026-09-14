@@ -129,6 +129,35 @@
           "type": "string",
           "description": "The provided text will be used to label the category data in the outputs."
         },
+        "event_states": {
+          "default": null,
+          "items": {
+            "type": "string",
+            "oneOf": [
+              {
+                "const": "new",
+                "title": "New"
+              },
+              {
+                "const": "active",
+                "title": "Active"
+              },
+              {
+                "const": "resolved",
+                "title": "Resolved"
+              },
+              {
+                "const": "review",
+                "title": "Review"
+              }
+            ]
+          },
+          "title": "Event State",
+          "type": "array",
+          "description": "Choose to analyze events with a certain state. If left empty, events of all states will be analyzed",
+          "uniqueItems": true,
+          "ecoscope:advanced": true
+        },
         "include_null_geometry": {
           "default": true,
           "title": "Include Events Without a Geometry (point or polygon)",
@@ -725,6 +754,7 @@
         "analysis_field_unit",
         "category_field",
         "category_field_label",
+        "event_states",
         "include_null_geometry"
       ],
       "event_types": {
