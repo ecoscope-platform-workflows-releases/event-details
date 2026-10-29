@@ -29,14 +29,14 @@
           "id": 1,
           "is_filtered": false,
           "title": "Herd Size",
-          "widget_type": "table"
+          "widget_type": "table_v2"
         },
         {
           "data": null,
           "id": 2,
           "is_filtered": false,
           "title": "Proportion of Herd Size",
-          "widget_type": "graph"
+          "widget_type": "graph_v2"
         },
         {
           "data": null,
@@ -50,7 +50,7 @@
           "id": 4,
           "is_filtered": false,
           "title": "Herd Size Over Time",
-          "widget_type": "graph"
+          "widget_type": "graph_v2"
         },
         {
           "data": null,
@@ -64,7 +64,7 @@
           "id": 6,
           "is_filtered": false,
           "title": "Events Table",
-          "widget_type": "table"
+          "widget_type": "table_v2"
         }
       ]
     }
