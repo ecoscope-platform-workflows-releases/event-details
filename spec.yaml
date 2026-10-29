@@ -627,21 +627,13 @@ workflow:
       label_column: ${{ workflow.category_field_display_name.return }}
       layout_style: null
       widget_id: ${{ workflow.set_pie_chart_title.return }}
+      output_type: json
     mapvalues:
       argnames: dataframe
       argvalues: ${{ workflow.drop_nan_values.return }}
-  - name: Persist Pie Chart as Text
-    id: grouped_pie_chart_html_urls
-    task: persist_text
-    partial:
-      root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: v2
-    mapvalues:
-      argnames: text
-      argvalues: ${{ workflow.grouped_events_pie_chart.return }}
   - name: Create Plot Widget for Events
     id: grouped_events_pie_chart_widgets
-    task: create_plot_widget_single_view
+    task: create_plot_v2_widget_single_view
     skipif:
       conditions:
         - never
@@ -651,7 +643,7 @@ workflow:
       argnames:
         - view
         - data
-      argvalues: ${{ workflow.grouped_pie_chart_html_urls.return }}
+      argvalues: ${{ workflow.grouped_events_pie_chart.return }}
   - name: Merge Pie Chart Widget Views
     id: grouped_events_pie_widget_merge
     task: merge_widget_views
@@ -787,21 +779,13 @@ workflow:
             xaxis:
               title: "Time"
           widget_id: ${{ workflow.set_bar_chart_title.return }}
+          output_type: json
         mapvalues:
           argnames: dataframe
           argvalues: ${{ workflow.drop_nan_values.return }}
-      - name: Persist Bar Chart as Text
-        id: events_bar_chart_html_url
-        task: persist_text
-        partial:
-          root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-          filename_suffix: v2
-        mapvalues:
-          argnames: text
-          argvalues: ${{ workflow.events_bar_chart.return }}
       - name: Create Bar Plot Widget for Events
         id: events_bar_chart_widget
-        task: create_plot_widget_single_view
+        task: create_plot_v2_widget_single_view
         skipif:
           conditions:
             - never
@@ -811,7 +795,7 @@ workflow:
           argnames:
             - view
             - data
-          argvalues: ${{ workflow.events_bar_chart_html_url.return }}
+          argvalues: ${{ workflow.events_bar_chart.return }}
       - name: Merge Bar Plot Widget Views
         id: grouped_bar_plot_widget_merge
         task: merge_widget_views
