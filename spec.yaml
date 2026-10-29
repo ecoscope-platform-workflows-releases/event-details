@@ -575,42 +575,34 @@ workflow:
       argvalues: ${{ workflow.transpose_table.return }}
   - name: Summary Table
     id: summary_table
-    task: draw_table
+    task: persist_df
     partial:
+      root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
+      filetype: parquet
       columns:
         - Summary Stats
         - Summary Values
-      table_config:
-        enable_sorting: true
-        enable_filtering: false
-        enable_download: true
-        hide_header: true
-      widget_id: ${{ workflow.set_summary_table_title.return }}
     mapvalues:
-      argnames: dataframe
+      argnames: df
       argvalues: ${{ workflow.rename_summary_columns.return }}
-  - name: Persist Summary Table as Text
-    id: summary_html_urls
-    task: persist_text
-    partial:
-      root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: v2
-    mapvalues:
-      argnames: text
-      argvalues: ${{ workflow.summary_table.return }}
   - name: Create Table Widget for Summary
     id: summary_table_single_views
-    task: create_table_widget_single_view
+    task: create_table_v2_widget_single_view
     skipif:
       conditions:
         - never
     partial:
       title: ${{ workflow.set_summary_table_title.return }}
+      table_config:
+        enable_sorting: true
+        enable_filtering: false
+        enable_download: true
+        hide_header: true
     map:
       argnames:
         - view
         - data
-      argvalues: ${{ workflow.summary_html_urls.return }}
+      argvalues: ${{ workflow.summary_table.return }}
   - name: Merge Summary Table Widget Views
     id: grouped_summary_table_widget
     task: merge_widget_views
@@ -985,40 +977,34 @@ workflow:
           widgets: ${{ workflow.grouped_fd_map_widget.return }}
   - name: Events Table
     id: events_table
-    task: draw_table
-    partial:
-      columns: ${{ workflow.events_table_display_columns.return }}
-      table_config:
-        enable_sorting: true
-        enable_filtering: false
-        enable_download: true
-        hide_header: false
-      widget_id: ${{ workflow.set_events_table_title.return }}
-    mapvalues:
-      argnames: dataframe
-      argvalues: ${{ workflow.display_table.return }}
-  - name: Persist Events Table as Text
-    id: table_html_urls
-    task: persist_text
+    task: persist_df
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
-      filename_suffix: v2
+      filetype: parquet
+      columns: ${{ workflow.events_table_display_columns.return }}
+      # event details can be nested or mixed-type, which pyarrow rejects
+      sanitize: true
     mapvalues:
-      argnames: text
-      argvalues: ${{ workflow.events_table.return }}
+      argnames: df
+      argvalues: ${{ workflow.display_table.return }}
   - name: Create Table Widgets for Events
     id: events_table_single_views
-    task: create_table_widget_single_view
+    task: create_table_v2_widget_single_view
     skipif:
       conditions:
         - never
     partial:
       title: ${{ workflow.set_events_table_title.return }}
+      table_config:
+        enable_sorting: true
+        enable_filtering: false
+        enable_download: true
+        hide_header: false
     map:
       argnames:
         - view
         - data
-      argvalues: ${{ workflow.table_html_urls.return }}
+      argvalues: ${{ workflow.events_table.return }}
   - name: Merge Table Widget Views
     id: grouped_table_widget
     task: merge_widget_views
