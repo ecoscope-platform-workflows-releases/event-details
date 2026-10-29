@@ -7,6 +7,11 @@ requirements:
   - name: ecoscope
     git: https://github.com/wildlife-dynamics/ecoscope.git
     branch: am/native-plot-table-widgets
+  # ecoscope's pyproject needs sqlalchemy<2.1, but its conda recipe doesn't pin it,
+  # so the conda solve picks 2.1 (win-64) and the git ecoscope then can't resolve.
+  - name: sqlalchemy
+    version: "<2.1"
+    channel: conda-forge
   # ecoscope-platform already declares this exact pydeck dependency. it is
   # re-stated here as a workaround for a known issue. for further detail, see:
   # https://github.com/wildlife-dynamics/wt/issues/167#issuecomment-4451993697
@@ -578,10 +583,12 @@ workflow:
     task: persist_df
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
+      filename: null
       filetype: parquet
       columns:
         - Summary Stats
         - Summary Values
+      sanitize: false
     mapvalues:
       argnames: df
       argvalues: ${{ workflow.rename_summary_columns.return }}
@@ -980,6 +987,7 @@ workflow:
     task: persist_df
     partial:
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
+      filename: null
       filetype: parquet
       columns: ${{ workflow.events_table_display_columns.return }}
       # event details can be nested or mixed-type, which pyarrow rejects

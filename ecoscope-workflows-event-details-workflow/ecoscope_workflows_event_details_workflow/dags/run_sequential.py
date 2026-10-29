@@ -54,7 +54,7 @@ from ecoscope.platform.tasks.io import (
 from ecoscope.platform.tasks.io import (
     get_spatial_features_group as get_spatial_features_group,
 )
-from ecoscope.platform.tasks.io import persist_text as persist_text
+from ecoscope.platform.tasks.io import persist_df as persist_df
 from ecoscope.platform.tasks.io import set_er_connection as set_er_connection
 from ecoscope.platform.tasks.io import (
     set_event_details_params as set_event_details_params,
@@ -63,17 +63,16 @@ from ecoscope.platform.tasks.results import (
     create_map_v2_widget_single_view as create_map_v2_widget_single_view,
 )
 from ecoscope.platform.tasks.results import (
-    create_plot_widget_single_view as create_plot_widget_single_view,
+    create_plot_v2_widget_single_view as create_plot_v2_widget_single_view,
 )
 from ecoscope.platform.tasks.results import (
     create_single_value_widget_single_view as create_single_value_widget_single_view,
 )
 from ecoscope.platform.tasks.results import (
-    create_table_widget_single_view as create_table_widget_single_view,
+    create_table_v2_widget_single_view as create_table_v2_widget_single_view,
 )
 from ecoscope.platform.tasks.results import draw_map as draw_map
 from ecoscope.platform.tasks.results import draw_pie_chart as draw_pie_chart
-from ecoscope.platform.tasks.results import draw_table as draw_table
 from ecoscope.platform.tasks.results import (
     draw_time_series_bar_chart as draw_time_series_bar_chart,
 )
@@ -1532,7 +1531,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     summary_table = (
-        task(draw_table)
+        task(persist_df)
         .validate()
         .set_task_instance_id("summary_table")
         .handle_errors()
@@ -1545,42 +1544,18 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
+            filename=None,
+            filetype="parquet",
             columns=["Summary Stats", "Summary Values"],
-            table_config={
-                "enable_sorting": True,
-                "enable_filtering": False,
-                "enable_download": True,
-                "hide_header": True,
-            },
-            widget_id=set_summary_table_title,
+            sanitize=False,
             **(params.get("summary_table") or {}),
         )
-        .mapvalues(argnames=["dataframe"], argvalues=rename_summary_columns)
-    )
-
-    summary_html_urls = (
-        task(persist_text)
-        .validate()
-        .set_task_instance_id("summary_html_urls")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename_suffix="v2",
-            **(params.get("summary_html_urls") or {}),
-        )
-        .mapvalues(argnames=["text"], argvalues=summary_table)
+        .mapvalues(argnames=["df"], argvalues=rename_summary_columns)
     )
 
     summary_table_single_views = (
-        task(create_table_widget_single_view)
+        task(create_table_v2_widget_single_view)
         .validate()
         .set_task_instance_id("summary_table_single_views")
         .handle_errors()
@@ -1593,9 +1568,15 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             title=set_summary_table_title,
+            table_config={
+                "enable_sorting": True,
+                "enable_filtering": False,
+                "enable_download": True,
+                "hide_header": True,
+            },
             **(params.get("summary_table_single_views") or {}),
         )
-        .map(argnames=["view", "data"], argvalues=summary_html_urls)
+        .map(argnames=["view", "data"], argvalues=summary_table)
     )
 
     grouped_summary_table_widget = (
@@ -1638,34 +1619,14 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             label_column=category_field_display_name,
             layout_style=None,
             widget_id=set_pie_chart_title,
+            output_type="json",
             **(params.get("grouped_events_pie_chart") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
 
-    grouped_pie_chart_html_urls = (
-        task(persist_text)
-        .validate()
-        .set_task_instance_id("grouped_pie_chart_html_urls")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename_suffix="v2",
-            **(params.get("grouped_pie_chart_html_urls") or {}),
-        )
-        .mapvalues(argnames=["text"], argvalues=grouped_events_pie_chart)
-    )
-
     grouped_events_pie_chart_widgets = (
-        task(create_plot_widget_single_view)
+        task(create_plot_v2_widget_single_view)
         .validate()
         .set_task_instance_id("grouped_events_pie_chart_widgets")
         .handle_errors()
@@ -1680,7 +1641,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             title=set_pie_chart_title,
             **(params.get("grouped_events_pie_chart_widgets") or {}),
         )
-        .map(argnames=["view", "data"], argvalues=grouped_pie_chart_html_urls)
+        .map(argnames=["view", "data"], argvalues=grouped_events_pie_chart)
     )
 
     grouped_events_pie_widget_merge = (
@@ -1937,34 +1898,14 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
                 "xaxis": {"title": "Time"},
             },
             widget_id=set_bar_chart_title,
+            output_type="json",
             **(params.get("events_bar_chart") or {}),
         )
         .mapvalues(argnames=["dataframe"], argvalues=drop_nan_values)
     )
 
-    events_bar_chart_html_url = (
-        task(persist_text)
-        .validate()
-        .set_task_instance_id("events_bar_chart_html_url")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename_suffix="v2",
-            **(params.get("events_bar_chart_html_url") or {}),
-        )
-        .mapvalues(argnames=["text"], argvalues=events_bar_chart)
-    )
-
     events_bar_chart_widget = (
-        task(create_plot_widget_single_view)
+        task(create_plot_v2_widget_single_view)
         .validate()
         .set_task_instance_id("events_bar_chart_widget")
         .handle_errors()
@@ -1978,7 +1919,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             title=set_bar_chart_title, **(params.get("events_bar_chart_widget") or {})
         )
-        .map(argnames=["view", "data"], argvalues=events_bar_chart_html_url)
+        .map(argnames=["view", "data"], argvalues=events_bar_chart)
     )
 
     grouped_bar_plot_widget_merge = (
@@ -2320,7 +2261,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     events_table = (
-        task(draw_table)
+        task(persist_df)
         .validate()
         .set_task_instance_id("events_table")
         .handle_errors()
@@ -2333,42 +2274,18 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
+            filename=None,
+            filetype="parquet",
             columns=events_table_display_columns,
-            table_config={
-                "enable_sorting": True,
-                "enable_filtering": False,
-                "enable_download": True,
-                "hide_header": False,
-            },
-            widget_id=set_events_table_title,
+            sanitize=True,
             **(params.get("events_table") or {}),
         )
-        .mapvalues(argnames=["dataframe"], argvalues=display_table)
-    )
-
-    table_html_urls = (
-        task(persist_text)
-        .validate()
-        .set_task_instance_id("table_html_urls")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(
-            root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename_suffix="v2",
-            **(params.get("table_html_urls") or {}),
-        )
-        .mapvalues(argnames=["text"], argvalues=events_table)
+        .mapvalues(argnames=["df"], argvalues=display_table)
     )
 
     events_table_single_views = (
-        task(create_table_widget_single_view)
+        task(create_table_v2_widget_single_view)
         .validate()
         .set_task_instance_id("events_table_single_views")
         .handle_errors()
@@ -2381,9 +2298,15 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             title=set_events_table_title,
+            table_config={
+                "enable_sorting": True,
+                "enable_filtering": False,
+                "enable_download": True,
+                "hide_header": False,
+            },
             **(params.get("events_table_single_views") or {}),
         )
-        .map(argnames=["view", "data"], argvalues=table_html_urls)
+        .map(argnames=["view", "data"], argvalues=events_table)
     )
 
     grouped_table_widget = (
