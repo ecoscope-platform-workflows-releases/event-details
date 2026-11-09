@@ -5,20 +5,21 @@
 
 ```yaml
 # fingerprint:
-artifacts_sha256_basic: 836aaa308c01cc8b8f53cec7e12d6e138eaa2dc67b9bf2902056dba0c421f255
-artifacts_sha256_strict: bcdc15536bbb5d1200cacc46a50d41993115e64765c17498dd3dd69c993eae13
+artifacts_sha256_basic: 511afc4a787211178e844c9b4885d7b130ec327c5d3ef4c6e157372c04262aa1
+artifacts_sha256_strict: 8bb5afb1ec2970f83ab3cbffbdbfc2954bcbc52e6d5ce5f893eada1adb5aea7c
 installed_requirements:
 - channel: https://repo.prefix.dev/ecoscope-workflows/
   name: ecoscope-platform
-  version: {version: ==2.23.0}
+  version: {version: ==2.31.0}
 - channel: conda-forge
   name: pydeck
   version: {version: ==0.9.2}
-params_sha256: 18b7bf2f3f4f3ab28f34e0559281c8f810a69d4640457677c7afdca713d26799
-spec_sha256: 46b650bf5e070c6fe326b1ad18fd4ec2f110f23a1eac77bafb6955869e4a1cab
+params_sha256: 9a141251035159f6ed6ed47ced1036cb3b9402fba69ed6bcee31e2fe32087885
+spec_sha256: ea7e4f2e363545fb22ea58c6175316d662d8e3a9fa1664e8f8e6a36dda96d59c
 
 ```
 
 # ecoscope-workflows-event-details-workflow
 
 ![](graph.png)
+
