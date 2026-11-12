@@ -1897,7 +1897,7 @@
                 "filled": true,
                 "getFillColor": "events_colormap",
                 "getLineColor": "#FFFFFF",
-                "getLineWidth": 1,
+                "getLineWidth": 1.0,
                 "getRadius": "normalized_analysis_field",
                 "id": "GeoArrowScatterplotLayer-0",
                 "lineWidthMinPixels": 0,
